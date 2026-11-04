@@ -1,5 +1,5 @@
 {
-  "headline": "MOVY",
+  "headline": "MEDIA STATION X",
   "menu": [
     {
       "id": "movy",
@@ -17,6 +17,28 @@
                 "layout": "0,0,12,6",
                 "label": "OPEN MOVY TV",
                 "action": "link:https://gorillacoding-hub.github.io/msx/app/"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "dramalive",
+      "type": "default",
+      "label": "DramaLive",
+      "icon": "movie",
+      "data": {
+        "type": "pages",
+        "headline": "DramaLive",
+        "pages": [
+          {
+            "items": [
+              {
+                "type": "default",
+                "layout": "0,0,12,6",
+                "label": "OPEN DRAMALIVE",
+                "action": "link:https://gorillacoding-hub.github.io/msx/dramalive/"
               }
             ]
           }
