@@ -1,104 +1,180 @@
 (function () {
-  "use strict";
+    "use strict";
 
-  var params = new URLSearchParams(window.location.search);
+    
+    // =========================================
+    // MEDIA STATION X - CIMA4U PLAYER
+    // Compatible with older Samsung Tizen browsers
+    // =========================================
 
-  var title = params.get("title") || "MEDIA STATION X";
-  var serversBox = document.getElementById("servers");
-  var videoFrame = document.getElementById("videoFrame");
-  var message = document.getElementById("message");
-  var backButton = document.getElementById("back");
+    var serversBox = document.getElementById("servers");
+    var videoFrame = document.getElementById("videoFrame");
+    var message = document.getElementById("message");
+    var backButton = document.getElementById("back");
+    var titleElement = document.getElementById("title");
 
-  document.getElementById("title").textContent = title;
+    // -----------------------------------------
+    // Read URL parameters (ES5 compatible)
+    // -----------------------------------------
 
-  /*
-   * Expected URL format:
-   *
-   * player.html?title=Episode
-   * &server1=https%3A%2F%2Fexample.com%2Fembed1
-   * &server2=https%3A%2F%2Fexample.com%2Fembed2
-   *
-   * Server URLs must be supplied by catalogue.json.
-   */
+    function getParameter(name) {
+        var query = window.location.search.substring(1);
+        var parts = query.split("&");
+        var i;
+        var pair;
+        var key;
+        var value;
 
-  var servers = [];
-  var index = 1;
+        for (i = 0; i < parts.length; i++) {
+            pair = parts[i].split("=");
 
-  while (index <= 10) {
-    var url = params.get("server" + index);
+            key = pair[0] || "";
+            value = pair.slice(1).join("=") || "";
 
-    if (url) {
-      servers.push({
-        name: "SERVER " + index,
-        url: url
-      });
+            try {
+                key = decodeURIComponent(key.replace(/\+/g, " "));
+                value = decodeURIComponent(value.replace(/\+/g, " "));
+            } catch (error) {
+                // Keep the original value if decoding fails.
+            }
+
+            if (key === name) {
+                return value;
+            }
+        }
+
+        return "";
     }
 
-    index++;
-  }
+    // -----------------------------------------
+    // Get title
+    // -----------------------------------------
 
-  function selectServer(server, button) {
-    var buttons = serversBox.getElementsByTagName("button");
-    var i;
+    var title = getParameter("title");
 
-    for (i = 0; i < buttons.length; i++) {
-      buttons[i].className = "server";
+    if (!title) {
+        title = "MEDIA STATION X";
     }
 
-    button.className = "server active";
+    titleElement.textContent = title;
 
-    message.style.display = "none";
+    // -----------------------------------------
+    // Read server URLs
+    // -----------------------------------------
 
-    videoFrame.src = server.url;
-  }
+    var servers = [];
+    var index = 1;
 
-  function buildServers() {
-    var i;
-    var button;
+    while (index <= 10) {
+        var serverUrl = getParameter("server" + index);
 
-    serversBox.innerHTML = "";
+        if (serverUrl) {
+            servers.push({
+                name: "SERVER " + index,
+                url: serverUrl
+            });
+        }
 
-    if (!servers.length) {
-      message.style.display = "block";
-      message.textContent =
-        "No servers were found for this episode.";
-      return;
+        index++;
     }
 
-    for (i = 0; i < servers.length; i++) {
-      button = document.createElement("button");
-      button.className = "server";
-      button.textContent = servers[i].name;
+    // -----------------------------------------
+    // Select and load a server
+    // -----------------------------------------
 
-      (function (server, currentButton) {
-        currentButton.onclick = function () {
-          selectServer(server, currentButton);
-        };
-      })(servers[i], button);
+    function selectServer(server, button) {
+        var buttons = serversBox.getElementsByTagName("button");
+        var i;
 
-      serversBox.appendChild(button);
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].className = "server";
+        }
+
+        button.className = "server active";
+
+        message.style.display = "none";
+
+        // Load the selected video host directly.
+        videoFrame.src = server.url;
     }
 
-    selectServer(
-      servers[0],
-      serversBox.getElementsByTagName("button")[0]
-    );
-  }
+    // -----------------------------------------
+    // Create server buttons
+    // -----------------------------------------
 
-  backButton.onclick = function () {
-    videoFrame.src = "about:blank";
-    window.history.back();
-  };
+    function buildServers() {
+        var i;
+        var button;
 
-  document.addEventListener("keydown", function (event) {
-    var key = event.keyCode;
+        serversBox.innerHTML = "";
 
-    if (key === 8 || key === 461) {
-      event.preventDefault();
-      backButton.click();
+        if (!servers || servers.length === 0) {
+            message.style.display = "block";
+            message.textContent =
+                "No playable servers were found for this title.";
+
+            return;
+        }
+
+        message.style.display = "none";
+
+        for (i = 0; i < servers.length; i++) {
+            button = document.createElement("button");
+
+            button.className = "server";
+            button.textContent = servers[i].name;
+            button.tabIndex = 0;
+
+            (function (server, currentButton) {
+                currentButton.onclick = function () {
+                    selectServer(server, currentButton);
+                };
+            })(servers[i], button);
+
+            serversBox.appendChild(button);
+        }
+
+        // Automatically load the first server.
+        selectServer(
+            servers[0],
+            serversBox.getElementsByTagName("button")[0]
+        );
     }
-  });
 
-  buildServers();
+    // -----------------------------------------
+    // Back button
+    // -----------------------------------------
+
+    backButton.onclick = function () {
+        videoFrame.src = "about:blank";
+
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = "index.html";
+        }
+    };
+
+    // -----------------------------------------
+    // Samsung TV remote BACK key support
+    // -----------------------------------------
+
+    document.addEventListener("keydown", function (event) {
+        event = event || window.event;
+
+        var key = event.keyCode || event.which;
+
+        // Backspace / Samsung remote back key
+        if (key === 8 || key === 461) {
+            event.preventDefault();
+            backButton.onclick();
+        }
+    });
+
+    // -----------------------------------------
+    // Initialize player
+    // -----------------------------------------
+
+    buildServers();
 
 })();
