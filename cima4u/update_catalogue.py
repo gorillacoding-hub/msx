@@ -32,6 +32,7 @@ BLOCKED_PATHS = (
     "/contact", "/login", "/register"
 )
 
+
 def clean(value):
     value = unescape(value or "")
     value = re.sub(r"<[^>]*>", " ", value)
@@ -41,10 +42,16 @@ def clean(value):
 def fetch(url):
     try:
         request = urllib.request.Request(url, headers=HEADERS)
+
         with urllib.request.urlopen(request, timeout=35) as response:
             if response.status != 200:
                 return ""
-            return response.read().decode("utf-8", errors="replace")
+
+            return response.read().decode(
+                "utf-8",
+                errors="replace"
+            )
+
     except Exception as error:
         print("Fetch failed:", url, str(error))
         return ""
@@ -65,7 +72,10 @@ def local_url(value):
     if parsed.scheme not in ("http", "https"):
         return ""
 
-    if parsed.hostname not in ("cimafu.live", "www.cimafu.live"):
+    if parsed.hostname not in (
+        "cimafu.live",
+        "www.cimafu.live"
+    ):
         return ""
 
     return urlunparse((
@@ -84,12 +94,18 @@ def is_post(url):
     if not path or path == "/":
         return False
 
-    return not any(part in path for part in BLOCKED_PATHS)
+    return not any(
+        part in path for part in BLOCKED_PATHS
+    )
 
 
 def is_category(url):
     path = urlparse(url).path.lower()
-    return "/category/" in path or "/genre/" in path
+
+    return (
+        "/category/" in path
+        or "/genre/" in path
+    )
 
 
 def detect_type(title, category=""):
@@ -98,7 +114,7 @@ def detect_type(title, category=""):
     anime_words = (
         "anime", "انمي", "أنمي", "naruto",
         "demon slayer", "one piece", "bleach",
-        "attack on titan", "anime"
+        "attack on titan"
     )
 
     series_words = (
@@ -116,8 +132,10 @@ def detect_type(title, category=""):
 
 
 class PageParser(HTMLParser):
+
     def __init__(self):
         super().__init__(convert_charrefs=True)
+
         self.links = []
         self.images = []
         self.servers = []
@@ -140,6 +158,7 @@ class PageParser(HTMLParser):
                 or attrs.get("data-original")
                 or attrs.get("src")
             )
+
             if src:
                 self.images.append(src)
 
@@ -164,16 +183,19 @@ class PageParser(HTMLParser):
             "data-iframe"
         ):
             value = attrs.get(key)
+
             if value:
                 self.servers.append(value)
 
         if tag == "iframe":
             src = attrs.get("src")
+
             if src:
                 self.servers.append(src)
 
         if tag == "source":
             src = attrs.get("src")
+
             if src:
                 self.servers.append(src)
 
@@ -197,6 +219,7 @@ class PageParser(HTMLParser):
 
         while self.anchors:
             anchor = self.anchors.pop()
+
             self.links.append({
                 "url": anchor["url"],
                 "title": clean(" ".join(anchor["text"]))
@@ -207,10 +230,18 @@ def parse_page(html):
     parser = PageParser()
     parser.feed(html)
     parser.close()
+
     return parser
 
 
-def add_title(items, seen, title, url, category="", description=""):
+def add_title(
+    items,
+    seen,
+    title,
+    url,
+    category="",
+    description=""
+):
     url = local_url(url)
     title = clean(title)
 
@@ -244,11 +275,13 @@ def collect_feed(items, seen):
 
     try:
         root = ET.fromstring(xml_data)
+
     except ET.ParseError as error:
         print("RSS XML error:", error)
         return
 
     for entry in root.findall(".//item"):
+
         title = entry.findtext("title", "")
         link = entry.findtext("link", "")
 
@@ -274,6 +307,7 @@ def collect_categories(home_html):
     categories = {}
 
     for link in parser.links:
+
         url = local_url(link["url"])
         name = clean(link["title"])
 
@@ -283,7 +317,12 @@ def collect_categories(home_html):
     return list(categories.items())[:MAX_CATEGORIES]
 
 
-def collect_listing(url, category, items, seen):
+def collect_listing(
+    url,
+    category,
+    items,
+    seen
+):
     html = fetch(url)
 
     if not html:
@@ -293,9 +332,11 @@ def collect_listing(url, category, items, seen):
     before = len(items)
 
     for link in parser.links:
+
         post_url = local_url(link["url"])
 
         if post_url and link["title"] and is_post(post_url):
+
             add_title(
                 items,
                 seen,
@@ -307,10 +348,16 @@ def collect_listing(url, category, items, seen):
     return len(items) - before
 
 
+# =========================================
+# Extract REAL video servers from episode page
+# =========================================
+
 def extract_server_urls(html, parser):
+
     found = []
 
     def add(value):
+
         value = unescape(value or "").strip()
         value = value.replace("\\/", "/")
 
@@ -334,29 +381,52 @@ def extract_server_urls(html, parser):
         ):
             return
 
+        # Remove duplicate servers.
         if value not in found:
             found.append(value)
 
+    # Extract servers from parsed HTML attributes.
     for value in parser.servers:
         add(value)
 
+    # Extract servers from raw HTML.
     patterns = [
+
         r'data-server\s*=\s*["\']([^"\']+)',
+
         r'data-url\s*=\s*["\']([^"\']+)',
+
         r'data-embed\s*=\s*["\']([^"\']+)',
+
         r'data-src\s*=\s*["\']([^"\']+)',
+
         r'<iframe[^>]+src\s*=\s*["\']([^"\']+)',
-        r'["\'](?:url|embed|src|link)["\']\s*:\s*["\']([^"\']+)'
+
+        r'["\'](?:url|embed|src|link)["\']'
+        r'\s*:\s*["\']([^"\']+)'
     ]
 
     for pattern in patterns:
-        for match in re.findall(pattern, html, re.I):
+
+        matches = re.findall(
+            pattern,
+            html,
+            re.I
+        )
+
+        for match in matches:
             add(match)
 
+    # Keep at most 12 servers per title.
     return found[:12]
 
 
+# =========================================
+# Extract title details and video servers
+# =========================================
+
 def extract_details(item):
+
     html = fetch(item["url"])
 
     if not html:
@@ -380,45 +450,72 @@ def extract_details(item):
     )
 
     if poster:
-        item["poster"] = urljoin(item["url"], poster)
+
+        item["poster"] = urljoin(
+            item["url"],
+            poster
+        )
+
     else:
+
         for image in parser.images:
-            image_url = urljoin(item["url"], image)
+
+            image_url = urljoin(
+                item["url"],
+                image
+            )
 
             if image_url.startswith("https://"):
                 item["poster"] = image_url
                 break
 
-    item["servers"] = extract_server_urls(html, parser)
+    # THIS IS THE IMPORTANT NEW PART.
+    # Extract the actual episode video servers.
+    item["servers"] = extract_server_urls(
+        html,
+        parser
+    )
 
-    # Refine type using the article's actual page title.
+    # Refine type using the article's actual title.
     page_title = parser.meta.get("og:title", "")
+
     if page_title:
+
         item["type"] = detect_type(
             clean(page_title),
             item.get("category", "")
         )
 
 
+# =========================================
+# Main catalogue updater
+# =========================================
+
 def main():
+
     items = []
     seen = set()
 
     print("Fetching Cima4U homepage...")
+
     home = fetch(BASE + "/")
 
     if not home:
+
         raise RuntimeError(
-            "Cannot fetch Cima4U homepage. Existing catalogue preserved."
+            "Cannot fetch Cima4U homepage. "
+            "Existing catalogue preserved."
         )
 
     homepage_parser = parse_page(home)
 
     # Collect homepage titles.
     for link in homepage_parser.links:
+
         url = local_url(link["url"])
 
         if url and link["title"] and is_post(url):
+
             add_title(
                 items,
                 seen,
@@ -435,6 +532,7 @@ def main():
         categories,
         start=1
     ):
+
         print(
             "Category",
             index,
@@ -445,9 +543,13 @@ def main():
         )
 
         for page in range(1, MAX_PAGES + 1):
+
             if page == 1:
+
                 page_url = category_url
+
             else:
+
                 page_url = (
                     category_url.rstrip("/")
                     + "/page/"
@@ -462,29 +564,47 @@ def main():
                 seen
             )
 
-            print("  Page", page, "- new titles:", count)
+            print(
+                "  Page",
+                page,
+                "- new titles:",
+                count
+            )
 
             if page > 1 and count == 0:
                 break
 
             time.sleep(DELAY)
 
-    # RSS is an additional source, not the only source.
+    # RSS is an additional source.
     collect_feed(items, seen)
 
     if not items:
+
         raise RuntimeError(
-            "No titles found. Existing catalogue preserved."
+            "No titles found. "
+            "Existing catalogue preserved."
         )
 
     print("Total titles collected:", len(items))
 
-    # Fetch posters, descriptions and available embed servers.
-    detail_count = min(len(items), MAX_DETAILS)
+    # Fetch posters, descriptions and servers.
+    detail_count = min(
+        len(items),
+        MAX_DETAILS
+    )
 
-    print("Extracting details for", detail_count, "titles...")
+    print(
+        "Extracting details for",
+        detail_count,
+        "titles..."
+    )
 
-    for index, item in enumerate(items[:detail_count], start=1):
+    for index, item in enumerate(
+        items[:detail_count],
+        start=1
+    ):
+
         print(
             "Details",
             index,
@@ -495,17 +615,27 @@ def main():
         )
 
         try:
+
             extract_details(item)
+
         except Exception as error:
-            print("Detail extraction failed:", str(error))
+
+            print(
+                "Detail extraction failed:",
+                str(error)
+            )
 
         time.sleep(DELAY)
 
-    # Save only after successful collection.
+    # Save safely only after successful collection.
     temporary = OUTPUT.with_suffix(".tmp")
 
     temporary.write_text(
-        json.dumps(items, ensure_ascii=False, indent=2),
+        json.dumps(
+            items,
+            ensure_ascii=False,
+            indent=2
+        ),
         encoding="utf-8"
     )
 
@@ -514,12 +644,23 @@ def main():
     print("--------------------------------")
     print("Catalogue successfully updated.")
     print("Total titles:", len(items))
-    print("With posters:", sum(
-        1 for item in items if item["poster"]
-    ))
-    print("With servers:", sum(
-        1 for item in items if item["servers"]
-    ))
+
+    print(
+        "With posters:",
+        sum(
+            1 for item in items
+            if item["poster"]
+        )
+    )
+
+    print(
+        "With servers:",
+        sum(
+            1 for item in items
+            if item["servers"]
+        )
+    )
+
     print("Saved to:", OUTPUT)
 
 
