@@ -1,16 +1,21 @@
 
 {
+  "name": "MOVY",
+  "version": "1.0.0",
   "headline": "MOVY",
   "menu": [
     {
+      "id": "movy",
+      "type": "default",
       "label": "MOVY",
-      "icon": "movie",
+      "image": "https://gorillacoding-hub.github.io/msx/img/movy.png",
       "data": {
         "type": "pages",
         "items": [
           {
+            "type": "separate",
             "title": "MOVY",
-            "action": "link:https://www.movy.sx/"
+            "action": "link:window:https://www.movy.sx/"
           }
         ]
       }
