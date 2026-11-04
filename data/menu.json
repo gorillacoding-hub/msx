@@ -1,3 +1,4 @@
+
 {
   "headline": "MEDIA STATION X",
   "menu": [
@@ -44,11 +45,28 @@
           }
         ]
       }
+    },
+    {
+      "id": "cima4u",
+      "type": "default",
+      "label": "Cima4U",
+      "icon": "movie",
+      "data": {
+        "type": "pages",
+        "headline": "Cima4U",
+        "pages": [
+          {
+            "items": [
+              {
+                "type": "default",
+                "layout": "0,0,12,6",
+                "label": "OPEN CIMA4U",
+                "action": "link:https://gorillacoding-hub.github.io/msx/cima4u/"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
-}
-{
-    "title": "Cima4U",
-    "action": "link",
-    "url": "https://gorillacoding-hub.github.io/msx/cima4u/"
 }
