@@ -6,9 +6,7 @@
 <title>Cima4U</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -47,9 +45,7 @@ button {
     cursor: pointer;
 }
 
-button:focus,
-.card:focus,
-input:focus {
+button:focus, .card:focus, input:focus {
     outline: 3px solid #e50935;
     outline-offset: 2px;
 }
@@ -59,13 +55,9 @@ button.active {
     border-color: #e50935;
 }
 
-button:disabled {
-    opacity: .35;
-}
+button:disabled { opacity: .35; }
 
-.search {
-    padding: 15px 20px;
-}
+.search { padding: 15px 20px; }
 
 #search {
     width: 100%;
@@ -83,9 +75,7 @@ button:disabled {
     color: #bbb;
 }
 
-h2 {
-    margin: 15px 20px;
-}
+h2 { margin: 15px 20px; }
 
 #grid {
     display: grid;
@@ -103,8 +93,7 @@ h2 {
     min-width: 0;
 }
 
-.card img,
-.placeholder {
+.card img, .placeholder {
     width: 100%;
     height: 205px;
     object-fit: cover;
@@ -173,9 +162,7 @@ h2 {
     padding: 20px;
 }
 
-#pageNumber {
-    color: #bbb;
-}
+#pageNumber { color: #bbb; }
 
 .empty {
     padding: 25px;
@@ -205,8 +192,7 @@ footer {
 </nav>
 
 <div class="search">
-    <input
-        id="search"
+    <input id="search"
         type="text"
         placeholder="Search movies, series and anime..."
         autocomplete="off">
@@ -218,7 +204,6 @@ footer {
 
 <section id="listing">
     <h2 id="heading">Latest titles</h2>
-
     <div id="grid"></div>
 
     <div id="pages">
@@ -234,28 +219,23 @@ footer {
 
     <h2 id="detailTitle"></h2>
 
-    <img
-        id="detailPoster"
-        alt=""
-        style="display:none">
+    <img id="detailPoster" alt="" style="display:none">
 
     <p id="detailType"></p>
-
     <p id="description"></p>
 
-    <h3>Watch</h3>
-
+    <h3>Available servers</h3>
     <div id="servers"></div>
 
     <p id="noServers" style="display:none">
-        Unable to open this title. Please check its episode page.
+        No playable servers were found for this title yet.
     </p>
 
 </section>
 
 </main>
 
-<footer>Cima4U Frontend</footer>
+<footer>Media Station X</footer>
 
 <script>
 (function(){
@@ -266,7 +246,6 @@ var filtered = [];
 var type = "all";
 var page = 1;
 var pageSize = 18;
-var selected = null;
 
 var grid = document.getElementById("grid");
 var search = document.getElementById("search");
@@ -274,11 +253,11 @@ var listing = document.getElementById("listing");
 var details = document.getElementById("details");
 var status = document.getElementById("status");
 
-function clean(value){
+function clean(value) {
     return String(value || "");
 }
 
-function getType(item){
+function getType(item) {
     var value = (
         clean(item.type) + " " +
         clean(item.category) + " " +
@@ -314,22 +293,20 @@ function getType(item){
     return clean(item.type) || "movie";
 }
 
-function placeholder(){
+function placeholder() {
     var el = document.createElement("div");
-
     el.className = "placeholder";
     el.textContent = "CIMA4U";
-
     return el;
 }
 
-function applyFilters(){
-    var query = search.value.toLowerCase().replace(/^\s+|\s+$/g, "");
+function applyFilters() {
+    var query = search.value.toLowerCase()
+        .replace(/^\s+|\s+$/g, "");
 
     filtered = [];
 
-    for(var i = 0; i < catalogue.length; i++){
-
+    for (var i = 0; i < catalogue.length; i++) {
         var item = catalogue[i];
         var itemType = getType(item);
 
@@ -339,11 +316,11 @@ function applyFilters(){
             clean(item.category)
         ).toLowerCase();
 
-        if(type !== "all" && itemType !== type){
+        if (type !== "all" && itemType !== type) {
             continue;
         }
 
-        if(query && content.indexOf(query) === -1){
+        if (query && content.indexOf(query) === -1) {
             continue;
         }
 
@@ -354,61 +331,51 @@ function applyFilters(){
     render();
 }
 
-function render(){
+function render() {
     grid.innerHTML = "";
 
     var start = (page - 1) * pageSize;
     var end = Math.min(start + pageSize, filtered.length);
 
-    for(var i = start; i < end; i++){
-
-        (function(item){
+    for (var i = start; i < end; i++) {
+        (function(item) {
 
             var card = document.createElement("div");
-
             card.className = "card";
             card.tabIndex = 0;
             card.setAttribute("role", "button");
 
             var poster = clean(item.poster);
 
-            if(poster.indexOf("https://") === 0){
-
+            if (poster.indexOf("https://") === 0) {
                 var img = document.createElement("img");
-
                 img.src = poster;
                 img.alt = clean(item.title);
 
-                img.onerror = function(){
+                img.onerror = function() {
                     this.parentNode.replaceChild(
-                        placeholder(),
-                        this
+                        placeholder(), this
                     );
                 };
 
                 card.appendChild(img);
-
             } else {
                 card.appendChild(placeholder());
             }
 
             var title = document.createElement("div");
-
             title.className = "card-title";
             title.textContent = clean(item.title);
-
             card.appendChild(title);
 
-            card.onclick = function(){
+            card.onclick = function() {
                 openDetails(item);
             };
 
-            card.onkeydown = function(event){
-
+            card.onkeydown = function(event) {
                 event = event || window.event;
 
-                if(event.keyCode === 13 || event.keyCode === 32){
-
+                if (event.keyCode === 13 || event.keyCode === 32) {
                     event.preventDefault();
                     openDetails(item);
                 }
@@ -419,13 +386,10 @@ function render(){
         })(filtered[i]);
     }
 
-    if(filtered.length === 0){
-
+    if (filtered.length === 0) {
         var empty = document.createElement("div");
-
         empty.className = "empty";
         empty.textContent = "No titles found.";
-
         grid.appendChild(empty);
     }
 
@@ -440,19 +404,12 @@ function render(){
         page >= Math.ceil(filtered.length / pageSize);
 
     document.getElementById("heading").textContent =
-        type === "all"
-        ? "Latest titles"
-        : type === "movie"
-        ? "Movies"
-        : type === "series"
-        ? "Series"
-        : "Anime";
+        type === "all" ? "Latest titles" :
+        type === "movie" ? "Movies" :
+        type === "series" ? "Series" : "Anime";
 }
 
-function openDetails(item){
-
-    selected = item;
-
+function openDetails(item) {
     listing.style.display = "none";
     details.style.display = "block";
 
@@ -467,84 +424,98 @@ function openDetails(item){
 
     var poster = document.getElementById("detailPoster");
 
-    if(clean(item.poster).indexOf("https://") === 0){
-
+    if (clean(item.poster).indexOf("https://") === 0) {
         poster.src = item.poster;
         poster.style.display = "block";
-
     } else {
         poster.style.display = "none";
     }
 
     renderServers(item);
-
     window.scrollTo(0, 0);
 }
 
 /*
- * Open the original Cima4U episode page.
- * The original JPlayer and its server selector
- * are expected to load inside player.html.
+ * IMPORTANT:
+ * item.servers is extracted by update_catalogue.py.
+ * We now pass the real server URLs directly to player.html.
+ * We do NOT load the Cima4U episode page inside an iframe.
  */
 
-function renderServers(item){
-
+function renderServers(item) {
     var container = document.getElementById("servers");
     var noServers = document.getElementById("noServers");
 
     container.innerHTML = "";
 
-    var episodeUrl = clean(item.url);
+    var servers = item.servers || [];
 
-    if(episodeUrl.indexOf("https://") === 0){
-
-        noServers.style.display = "none";
-
-        var button = document.createElement("button");
-
-        button.textContent = "WATCH";
-        button.tabIndex = 0;
-
-        button.onclick = function(){
-            openPlayer(episodeUrl, item.title);
-        };
-
-        container.appendChild(button);
-
-    } else {
-
+    if (!servers.length) {
         noServers.style.display = "block";
+        return;
+    }
+
+    noServers.style.display = "none";
+
+    for (var i = 0; i < servers.length; i++) {
+        (function(server, index) {
+
+            var url = typeof server === "string"
+                ? server
+                : server.url;
+
+            if (!url) {
+                return;
+            }
+
+            var button = document.createElement("button");
+
+            button.textContent = "SERVER " + (index + 1);
+            button.tabIndex = 0;
+
+            button.onclick = function() {
+                openPlayer(item.title, servers);
+            };
+
+            container.appendChild(button);
+
+        })(servers[i], i);
     }
 }
 
-function openPlayer(url, name){
+function openPlayer(name, servers) {
+    var url = "player.html?title=" +
+        encodeURIComponent(name || "MEDIA STATION X");
 
-    window.location.href =
-        "player.html?episode=" +
-        encodeURIComponent(url) +
-        "&name=" +
-        encodeURIComponent(name || "");
+    for (var i = 0; i < servers.length && i < 10; i++) {
+        var server = servers[i];
+
+        var serverUrl = typeof server === "string"
+            ? server
+            : server.url;
+
+        if (serverUrl) {
+            url += "&server" + (i + 1) + "=" +
+                encodeURIComponent(serverUrl);
+        }
+    }
+
+    window.location.href = url;
 }
 
-function closeDetails(){
-
+function closeDetails() {
     details.style.display = "none";
     listing.style.display = "block";
-
-    selected = null;
-
     window.scrollTo(0, 0);
 }
 
-document.getElementById("nav").onclick = function(event){
-
+document.getElementById("nav").onclick = function(event) {
     event = event || window.event;
 
     var target = event.target || event.srcElement;
-
     var selectedType = target.getAttribute("data-type");
 
-    if(!selectedType){
+    if (!selectedType) {
         return;
     }
 
@@ -552,12 +523,10 @@ document.getElementById("nav").onclick = function(event){
 
     var buttons = this.getElementsByTagName("button");
 
-    for(var i = 0; i < buttons.length; i++){
-
+    for (var i = 0; i < buttons.length; i++) {
         buttons[i].className =
             buttons[i].getAttribute("data-type") === type
-            ? "active"
-            : "";
+            ? "active" : "";
     }
 
     applyFilters();
@@ -567,37 +536,33 @@ search.onkeyup = applyFilters;
 
 document.getElementById("back").onclick = closeDetails;
 
-document.getElementById("previous").onclick = function(){
-
-    if(page > 1){
+document.getElementById("previous").onclick = function() {
+    if (page > 1) {
         page--;
         render();
     }
 };
 
-document.getElementById("next").onclick = function(){
-
-    if(page < Math.ceil(filtered.length / pageSize)){
+document.getElementById("next").onclick = function() {
+    if (page < Math.ceil(filtered.length / pageSize)) {
         page++;
         render();
     }
 };
 
-document.onkeydown = function(event){
-
+document.onkeydown = function(event) {
     event = event || window.event;
 
-    if(
+    if (
         (event.keyCode === 27 || event.keyCode === 8) &&
         details.style.display === "block"
-    ){
+    ) {
         event.preventDefault();
         closeDetails();
     }
 };
 
-function load(){
-
+function load() {
     var request = new XMLHttpRequest();
 
     request.open(
@@ -606,22 +571,19 @@ function load(){
         true
     );
 
-    request.onreadystatechange = function(){
-
-        if(request.readyState !== 4){
+    request.onreadystatechange = function() {
+        if (request.readyState !== 4) {
             return;
         }
 
-        if(request.status >= 200 && request.status < 300){
-
-            try{
-
+        if (request.status >= 200 && request.status < 300) {
+            try {
                 var data = JSON.parse(request.responseText);
 
-                if(
+                if (
                     Object.prototype.toString.call(data) !==
                     "[object Array]"
-                ){
+                ) {
                     throw new Error("Invalid catalogue");
                 }
 
@@ -632,21 +594,17 @@ function load(){
 
                 applyFilters();
 
-            } catch(error){
-
+            } catch (error) {
                 status.textContent =
                     "Could not read catalogue.json.";
             }
-
         } else {
-
             status.textContent =
                 "Could not load catalogue.json.";
         }
     };
 
-    request.onerror = function(){
-
+    request.onerror = function() {
         status.textContent =
             "Network error loading catalogue.";
     };
