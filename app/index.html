@@ -10,7 +10,7 @@
 nav{height:66px;padding:0 4%;display:flex;gap:12px;background:#0d1119;align-items:center;flex-wrap:wrap}
 button,input{font-family:Arial,Helvetica,sans-serif}button{cursor:pointer}
 .navbtn,.back{background:transparent;color:#b8c0cd;border:2px solid transparent;padding:13px 20px;font-size:17px;font-weight:bold;letter-spacing:2px}
-button:focus,input:focus{outline:3px solid #f2c66d;outline-offset:3px}
+button:focus,input:focus{outline:4px solid #f2c66d;outline-offset:3px;box-shadow:0 0 0 4px rgba(242,198,109,.22)}
 main{padding:28px 4%;min-height:700px}.hidden{display:none!important}.page{width:100%}
 .hero{min-height:270px;padding:34px 5%;display:flex;align-items:center;background:linear-gradient(110deg,#1e2a3b,#151923 55%,#34251c);border:1px solid #3b4350;border-radius:10px}
 .eyebrow{color:#e6b75b;font-size:13px;letter-spacing:4px;font-weight:bold}
@@ -19,7 +19,7 @@ p{font-size:19px;line-height:1.45;color:#c4cad4;max-width:760px}
 .primary{background:#e6b75b;color:#171717;border:0;padding:15px 25px;font-size:16px;font-weight:bold;border-radius:4px}
 .secondary{background:#242d3b;color:#fff;border:2px solid #596477;padding:13px 20px;font-size:15px;font-weight:bold;border-radius:4px}
 .rails{display:block}.rail{margin:26px 0}.railhead{display:flex;justify-content:space-between;align-items:center}.railhead h2{margin:0 0 14px}
-.cards{display:flex;flex-wrap:nowrap;gap:14px;overflow:hidden}
+.cards{display:flex;flex-wrap:nowrap;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth}
 .card{width:178px;min-width:178px;height:245px;text-align:left;padding:0;display:flex;flex-direction:column;justify-content:flex-end;color:white;border:2px solid #394352;border-radius:7px;overflow:hidden;background:#171d28;position:relative}
 .poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;background:linear-gradient(145deg,#30445c,#171c26)}
 .card:after{content:"";position:absolute;left:0;right:0;bottom:0;height:105px;background:linear-gradient(transparent,rgba(0,0,0,.94))}
@@ -65,7 +65,60 @@ function loadGrid(type,page,append){var path=type==="movie"?"/movie/popular?lang
 function openDetail(m){selected=m;var root=el("detailcontent");root.innerHTML="";var art=document.createElement("img"),copy=document.createElement("div"),h=document.createElement("h1"),meta=document.createElement("div"),desc=document.createElement("p"),play=document.createElement("button");art.className="art";art.src=m.poster||m.backdrop||"";art.onerror=function(){this.style.visibility="hidden";};h.appendChild(document.createTextNode(m.title));meta.className="meta";meta.appendChild(document.createTextNode((m.year||"Year unknown")+(m.rating?" · ★ "+m.rating:"")+(m.type==="tv"?" · TV SHOW":" · MOVIE")));desc.className="desc";desc.appendChild(document.createTextNode(m.overview||"No description available."));play.className="primary";play.appendChild(document.createTextNode("PLAY"));play.onclick=playTitle;copy.className="detailcopy";copy.appendChild(h);copy.appendChild(meta);copy.appendChild(desc);copy.appendChild(play);root.appendChild(art);root.appendChild(copy);showView("detail");play.focus();}
 function playTitle(){if(!selected)return;el("playertitle").innerHTML="";el("playertitle").appendChild(document.createTextNode(selected.title));var src=selected.type==="tv"?"https://vidy.st/tv/"+selected.id+"/1/1?color=E6B75B&episodeSelector=true&nextEpisode=true":"https://vidy.st/movie/"+selected.id+"?color=E6B75B";el("frame").src=src;el("openmovy").onclick=function(){window.location.href="https://www.movy.sx"+selected.slug;};showView("playerpage");el("backplayer").focus();}
 function runSearch(){var q=el("search").value.replace(/^\\s+|\\s+$/g,"");if(q.length<2){el("search-results").innerHTML="";el("search-message").innerHTML="Enter at least 2 characters.";return;}el("search-message").innerHTML="Searching live catalogue…";request(API+"/search/multi?query="+encodeURIComponent(q)+"&language=en&page=1",function(err,data){if(err){el("search-message").innerHTML="Search failed: "+err.message;return;}var a=data.results||[],out=[],i;for(i=0;i<a.length;i++)if(a[i].id&&(a[i].media_type==="movie"||a[i].media_type==="tv"))out.push(normalize(a[i],a[i].media_type));render("search-results",out);el("search-message").innerHTML=out.length?out.length+" results":"No results found.";});}
-function init(){var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){var p=this.getAttribute("data-page");showView(p);if(p==="movies"&&!el("movie-grid").firstChild)loadGrid("movie",moviePage,false);if(p==="shows"&&!el("show-grid").firstChild)loadGrid("tv",showPage,false);};el("browse").onclick=function(){showView("movies");loadGrid("movie",moviePage,false);};el("backdetail").onclick=function(){showView("movies");};el("backplayer").onclick=function(){el("frame").src="about:blank";showView("detail");};el("more-movies").onclick=function(){moviePage++;loadGrid("movie",moviePage,true);};el("more-shows").onclick=function(){showPage++;loadGrid("tv",showPage,true);};el("search").onkeyup=function(){if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,450);};el("search").onkeydown=function(e){if((e.keyCode||e.which)===13){if(searchTimer)clearTimeout(searchTimer);runSearch();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(el("playerpage").className.indexOf("hidden")<0)el("backplayer").click();else if(el("detail").className.indexOf("hidden")<0)el("backdetail").click();}};showView("home");loadHome();}
+
+function visibleFocusables(){
+ var all=document.querySelectorAll("button,input,[tabindex]"),out=[],i,n;
+ for(i=0;i<all.length;i++){
+  n=all[i];
+  if(n.disabled||n.tabIndex<0)continue;
+  if(n.offsetWidth===0||n.offsetHeight===0)continue;
+  if(n.className&&String(n.className).indexOf("hidden")>=0)continue;
+  out.push(n);
+ }
+ return out;
+}
+function moveFocus(direction,current){
+ var nodes=visibleFocusables(),cr=current.getBoundingClientRect(),cx=cr.left+cr.width/2,cy=cr.top+cr.height/2;
+ var best=null,bestScore=Infinity,i,r,x,y,dx,dy,primary,cross,score;
+ for(i=0;i<nodes.length;i++){
+  if(nodes[i]===current)continue;
+  r=nodes[i].getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2;dx=x-cx;dy=y-cy;
+  if(direction==="left"){primary=-dx;cross=Math.abs(dy);}
+  else if(direction==="right"){primary=dx;cross=Math.abs(dy);}
+  else if(direction==="up"){primary=-dy;cross=Math.abs(dx);}
+  else {primary=dy;cross=Math.abs(dx);}
+  if(primary<=2)continue;
+  score=primary+(cross*1.65)+(cross*cross/(primary+1))*.12;
+  if(score<bestScore){bestScore=score;best=nodes[i];}
+ }
+ if(best){
+  best.focus();
+  try{best.scrollIntoView({block:"nearest",inline:"nearest"});}catch(ignore){}
+  return true;
+ }
+ return false;
+}
+function installRemoteNavigation(){
+ document.addEventListener("keydown",function(e){
+  var k=e.keyCode||e.which,dir=null,active=document.activeElement;
+  if(k===37)dir="left";else if(k===38)dir="up";else if(k===39)dir="right";else if(k===40)dir="down";
+  if(!dir)return;
+  if(active&&active.tagName==="INPUT"&&active.type!=="button"){
+   if(dir==="left"||dir==="right")return;
+   if(dir==="down"||dir==="up"){
+    e.preventDefault();e.stopPropagation();
+    moveFocus(dir,active);return;
+   }
+  }
+  if(active&&moveFocus(dir,active)){
+   e.preventDefault();e.stopPropagation();
+  }else if(active){
+   e.preventDefault();e.stopPropagation();
+  }
+ },true);
+}
+
+function init(){installRemoteNavigation();var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){var p=this.getAttribute("data-page");showView(p);if(p==="movies"&&!el("movie-grid").firstChild)loadGrid("movie",moviePage,false);if(p==="shows"&&!el("show-grid").firstChild)loadGrid("tv",showPage,false);};el("browse").onclick=function(){showView("movies");loadGrid("movie",moviePage,false);};el("backdetail").onclick=function(){showView("movies");};el("backplayer").onclick=function(){el("frame").src="about:blank";showView("detail");};el("more-movies").onclick=function(){moviePage++;loadGrid("movie",moviePage,true);};el("more-shows").onclick=function(){showPage++;loadGrid("tv",showPage,true);};el("search").onkeyup=function(){if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,450);};el("search").onkeydown=function(e){if((e.keyCode||e.which)===13){if(searchTimer)clearTimeout(searchTimer);runSearch();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(el("playerpage").className.indexOf("hidden")<0)el("backplayer").click();else if(el("detail").className.indexOf("hidden")<0)el("backdetail").click();}};showView("home");loadHome();}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script></body></html>
