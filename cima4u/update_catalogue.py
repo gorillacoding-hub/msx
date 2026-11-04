@@ -1,50 +1,88 @@
+# -*- coding: utf-8 -*-
+# Cima4U catalogue updater for GitHub Actions
+# Compatible with the existing MSX index.html, catalogue.js and player.js
+
 import json
 import re
 import time
+import os
+import tempfile
 import urllib.request
+import urllib.error
 import xml.etree.ElementTree as ET
+
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import urljoin, urlparse
 
 BASE = "https://cimafu.live"
-FEED = BASE + "/feed/"
-OUTPUT = Path(__file__).parent / "catalogue.json"
+OUTPUT = Path(__file__).resolve().parent / "catalogue.json"
 
-MAX_CATEGORIES = 60
-MAX_PAGES = 12
-MAX_DETAILS = 300
-DELAY = 0.25
+MAX_CATEGORIES = 80
+MAX_PAGES = 15
+MAX_DETAILS = 500
+MAX_SERVERS = 12
+DELAY = 0.20
+TIMEOUT = 25
 
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0 Safari/537.36"
+        "Chrome/120.0.0.0 Safari/537.36"
     ),
-    "Accept": "text/html,application/xml,application/rss+xml,*/*"
+    "Accept": "text/html,application/xhtml+xml,application/xml,"
+              "application/rss+xml,*/*",
+    "Accept-Language": "ar,en-US,en;q=0.9",
 }
 
 BLOCKED_PATHS = (
-    "/category/", "/tag/", "/author/", "/page/",
-    "/feed/", "/wp-", "/search/", "/privacy",
-    "/contact", "/login", "/register"
+    "/category/",
+    "/tag/",
+    "/author/",
+    "/page/",
+    "/feed/",
+    "/wp-",
+    "/search/",
+    "/privacy",
+    "/contact",
+    "/login",
+    "/register",
+)
+
+VIDEO_EXTENSIONS = (
+    ".mp4", ".m3u8", ".mpd", ".webm"
 )
 
 
 def clean(value):
     value = unescape(value or "")
     value = re.sub(r"<[^>]*>", " ", value)
+    value = re.sub(r"[\r\n\t]+", " ", value)
     return re.sub(r"\s+", " ", value).strip()
 
 
 def fetch(url):
     try:
-        request = urllib.request.Request(url, headers=HEADERS)
+        request = urllib.request.Request(
+            url,
+            headers=HEADERS
+        )
 
-        with urllib.request.urlopen(request, timeout=35) as response:
+        with urllib.request.urlopen(
+            request,
+            timeout=TIMEOUT
+        ) as response:
+
             if response.status != 200:
+                return ""
+
+            content_type = response.headers.get(
+                "Content-Type", ""
+            )
+
+            if "image/" in content_type:
                 return ""
 
             return response.read().decode(
@@ -52,51 +90,76 @@ def fetch(url):
                 errors="replace"
             )
 
-    except Exception as error:
+    except (
+        urllib.error.URLError,
+        urllib.error.HTTPError,
+        TimeoutError,
+        OSError,
+        ValueError
+    ) as error:
+
         print("Fetch failed:", url, str(error))
         return ""
 
 
-def local_url(value):
+def normalize_url(value, base=BASE):
     if not value:
         return ""
 
-    value = unescape(value.strip())
+    value = unescape(str(value).strip())
+    value = value.replace("\\/", "/")
+    value = value.replace("&amp;", "&")
 
     if value.startswith("//"):
         value = "https:" + value
 
-    value = urljoin(BASE, value)
+    value = urljoin(base, value)
+
     parsed = urlparse(value)
 
     if parsed.scheme not in ("http", "https"):
         return ""
 
-    if parsed.hostname not in (
+    if not parsed.hostname:
+        return ""
+
+    return value
+
+
+def local_url(value):
+    value = normalize_url(value)
+
+    if not value:
+        return ""
+
+    parsed = urlparse(value)
+
+    host = (parsed.hostname or "").lower()
+
+    if host not in (
         "cimafu.live",
-        "www.cimafu.live"
+        "www.cimafu.live",
     ):
         return ""
 
-    return urlunparse((
-        "https",
-        "cimafu.live",
-        parsed.path,
-        "",
-        "",
-        ""
-    ))
+    return "https://cimafu.live" + parsed.path.rstrip("/") + (
+        "/" if parsed.path.endswith("/") else ""
+    )
 
 
 def is_post(url):
+    if not url:
+        return False
+
     path = urlparse(url).path.lower()
 
     if not path or path == "/":
         return False
 
-    return not any(
-        part in path for part in BLOCKED_PATHS
-    )
+    if any(part in path for part in BLOCKED_PATHS):
+        return False
+
+    return True
 
 
 def is_category(url):
@@ -112,14 +175,28 @@ def detect_type(title, category=""):
     value = (title + " " + category).lower()
 
     anime_words = (
-        "anime", "انمي", "أنمي", "naruto",
-        "demon slayer", "one piece", "bleach",
-        "attack on titan"
+        "anime",
+        "انمي",
+        "أنمي",
+        "naruto",
+        "one piece",
+        "bleach",
+        "attack on titan",
+        "demon slayer",
+        "jujutsu",
+        "dragon ball",
     )
 
     series_words = (
-        "مسلسل", "الحلقة", "الموسم", "حلقه",
-        "episode", "season", "series", "الحلقه"
+        "مسلسل",
+        "الموسم",
+        "الحلقة",
+        "حلقه",
+        "الحلقه",
+        "episode",
+        "season",
+        "series",
+        "مسلسلات",
     )
 
     if any(word in value for word in anime_words):
@@ -134,7 +211,7 @@ def detect_type(title, category=""):
 class PageParser(HTMLParser):
 
     def __init__(self):
-        super().__init__(convert_charrefs=True)
+        HTMLParser.__init__(self, convert_charrefs=True)
 
         self.links = []
         self.images = []
@@ -146,16 +223,19 @@ class PageParser(HTMLParser):
         attrs = dict(attrs)
 
         if tag == "a":
+
             self.anchors.append({
                 "url": attrs.get("href", ""),
-                "text": []
+                "text": [],
             })
 
         elif tag == "img":
+
             src = (
                 attrs.get("data-src")
                 or attrs.get("data-lazy-src")
                 or attrs.get("data-original")
+                or attrs.get("data-lazy")
                 or attrs.get("src")
             )
 
@@ -163,6 +243,7 @@ class PageParser(HTMLParser):
                 self.images.append(src)
 
         elif tag == "meta":
+
             key = (
                 attrs.get("property")
                 or attrs.get("name")
@@ -175,35 +256,45 @@ class PageParser(HTMLParser):
             if key and value:
                 self.meta[key] = value
 
+        # Actual Cima4U server selectors use data-server.
         for key in (
             "data-server",
             "data-url",
             "data-embed",
             "data-src",
-            "data-iframe"
+            "data-iframe",
+            "data-link",
         ):
+
             value = attrs.get(key)
 
             if value:
                 self.servers.append(value)
 
         if tag == "iframe":
-            src = attrs.get("src")
+
+            src = (
+                attrs.get("data-src")
+                or attrs.get("src")
+            )
 
             if src:
                 self.servers.append(src)
 
         if tag == "source":
+
             src = attrs.get("src")
 
             if src:
                 self.servers.append(src)
 
     def handle_data(self, data):
-        for anchor in self.anchors:
-            anchor["text"].append(data)
+
+        if self.anchors:
+            self.anchors[-1]["text"].append(data)
 
     def handle_endtag(self, tag):
+
         if tag != "a" or not self.anchors:
             return
 
@@ -211,25 +302,37 @@ class PageParser(HTMLParser):
 
         self.links.append({
             "url": anchor["url"],
-            "title": clean(" ".join(anchor["text"]))
+            "title": clean(
+                " ".join(anchor["text"])
+            ),
         })
 
     def close(self):
-        super().close()
+
+        HTMLParser.close(self)
 
         while self.anchors:
+
             anchor = self.anchors.pop()
 
             self.links.append({
                 "url": anchor["url"],
-                "title": clean(" ".join(anchor["text"]))
+                "title": clean(
+                    " ".join(anchor["text"])
+                ),
             })
 
 
 def parse_page(html):
+
     parser = PageParser()
-    parser.feed(html)
-    parser.close()
+
+    try:
+        parser.feed(html)
+        parser.close()
+
+    except Exception as error:
+        print("HTML parsing warning:", str(error))
 
     return parser
 
@@ -242,10 +345,14 @@ def add_title(
     category="",
     description=""
 ):
+
     url = local_url(url)
     title = clean(title)
 
-    if not url or not title or not is_post(url):
+    if not url or not title:
+        return
+
+    if not is_post(url):
         return
 
     if url in seen:
@@ -256,53 +363,84 @@ def add_title(
     items.append({
         "title": title,
         "url": url,
-        "description": clean(description)[:1200],
+        "description": clean(description)[:1500],
         "type": detect_type(title, category),
         "category": clean(category),
         "poster": "",
-        "servers": []
+        "servers": [],
     })
 
 
 def collect_feed(items, seen):
-    print("Reading RSS feed...")
 
-    xml_data = fetch(FEED)
+    feed_urls = (
+        BASE + "/feed/",
+        BASE + "/?feed=rss2",
+    )
 
-    if not xml_data:
-        print("RSS unavailable.")
-        return
+    for feed_url in feed_urls:
 
-    try:
-        root = ET.fromstring(xml_data)
+        print("Reading RSS:", feed_url)
 
-    except ET.ParseError as error:
-        print("RSS XML error:", error)
-        return
+        xml_data = fetch(feed_url)
 
-    for entry in root.findall(".//item"):
+        if not xml_data:
+            continue
 
-        title = entry.findtext("title", "")
-        link = entry.findtext("link", "")
+        try:
+            root = ET.fromstring(xml_data)
 
-        description = (
-            entry.findtext("description", "")
-            or entry.findtext(
-                "{http://purl.org/rss/1.0/modules/content/}encoded",
-                ""
+        except ET.ParseError as error:
+            print("RSS XML error:", str(error))
+            continue
+
+        entries = root.findall(".//item")
+
+        if not entries:
+            entries = root.findall(
+                ".//{http://www.w3.org/2005/Atom}entry"
             )
-        )
 
-        add_title(
-            items,
-            seen,
-            title,
-            link,
-            description=description
-        )
+        for entry in entries:
+
+            title = entry.findtext("title", "")
+
+            link = entry.findtext("link", "")
+
+            if not link:
+
+                atom_link = entry.find(
+                    "{http://www.w3.org/2005/Atom}link"
+                )
+
+                if atom_link is not None:
+                    link = atom_link.attrib.get("href", "")
+
+            description = (
+                entry.findtext("description", "")
+                or entry.findtext(
+                    "{http://purl.org/rss/1.0/modules/content/}encoded",
+                    ""
+                )
+            )
+
+            add_title(
+                items,
+                seen,
+                title,
+                link,
+                description=description,
+            )
+
+        if entries:
+            print("RSS entries:", len(entries))
+            return
+
+    print("RSS feeds unavailable; continuing with homepage.")
 
 
 def collect_categories(home_html):
+
     parser = parse_page(home_html)
     categories = {}
 
@@ -323,10 +461,11 @@ def collect_listing(
     items,
     seen
 ):
+
     html = fetch(url)
 
     if not html:
-        return 0
+        return -1
 
     parser = parse_page(html)
     before = len(items)
@@ -342,55 +481,66 @@ def collect_listing(
                 seen,
                 link["title"],
                 post_url,
-                category
+                category,
             )
 
     return len(items) - before
 
 
-# =========================================
-# Extract REAL video servers from episode page
-# =========================================
+# --------------------------------------------------
+# Extract actual video servers from Cima4U episode HTML
+# --------------------------------------------------
 
-def extract_server_urls(html, parser):
+def extract_server_urls(html, parser=None):
 
     found = []
+    seen = set()
 
     def add(value):
 
-        value = unescape(value or "").strip()
-        value = value.replace("\\/", "/")
+        value = normalize_url(value, BASE)
 
-        if value.startswith("//"):
-            value = "https:" + value
-
-        if value.startswith("http://"):
-            value = "https://" + value[7:]
-
-        if not value.startswith("https://"):
+        if not value:
             return
 
         parsed = urlparse(value)
+        host = (parsed.hostname or "").lower()
 
-        if not parsed.hostname:
-            return
-
-        if parsed.hostname in (
+        if host in (
             "cimafu.live",
-            "www.cimafu.live"
+            "www.cimafu.live",
         ):
             return
 
-        # Remove duplicate servers.
-        if value not in found:
-            found.append(value)
+        if not host or "." not in host:
+            return
 
-    # Extract servers from parsed HTML attributes.
-    for value in parser.servers:
-        add(value)
+        # Exclude images, scripts, styles and other assets.
+        path = parsed.path.lower()
 
-    # Extract servers from raw HTML.
-    patterns = [
+        if path.endswith((
+            ".jpg", ".jpeg", ".png", ".gif",
+            ".webp", ".svg", ".css", ".js",
+        )):
+            return
+
+        # Avoid collecting the same URL more than once.
+        normalized = value.rstrip("/")
+
+        if normalized in seen:
+            return
+
+        seen.add(normalized)
+        found.append(value)
+
+    if parser is not None:
+
+        for value in parser.servers:
+            add(value)
+
+    # Important: server_list / data-server markup
+    # found in the real Cima4U episode source.
+    patterns = (
 
         r'data-server\s*=\s*["\']([^"\']+)',
 
@@ -400,36 +550,45 @@ def extract_server_urls(html, parser):
 
         r'data-src\s*=\s*["\']([^"\']+)',
 
+        r'data-iframe\s*=\s*["\']([^"\']+)',
+
+        r'data-link\s*=\s*["\']([^"\']+)',
+
         r'<iframe[^>]+src\s*=\s*["\']([^"\']+)',
 
         r'["\'](?:url|embed|src|link)["\']'
-        r'\s*:\s*["\']([^"\']+)'
-    ]
+        r'\s*:\s*["\']([^"\']+)',
+
+        r'player\s*:\s*["\']([^"\']+)',
+
+        r'file\s*:\s*["\']([^"\']+)',
+    )
 
     for pattern in patterns:
 
-        matches = re.findall(
-            pattern,
-            html,
-            re.I
-        )
+        try:
+
+            matches = re.findall(
+                pattern,
+                html,
+                re.I
+            )
+
+        except re.error:
+            continue
 
         for match in matches:
             add(match)
 
-    # Keep at most 12 servers per title.
-    return found[:12]
+    return found[:MAX_SERVERS]
 
-
-# =========================================
-# Extract title details and video servers
-# =========================================
 
 def extract_details(item):
 
     html = fetch(item["url"])
 
     if not html:
+        print("No details downloaded:", item["url"])
         return
 
     parser = parse_page(html)
@@ -441,7 +600,7 @@ def extract_details(item):
     )
 
     if description:
-        item["description"] = clean(description)[:1200]
+        item["description"] = clean(description)[:1500]
 
     poster = (
         parser.meta.get("og:image")
@@ -451,50 +610,115 @@ def extract_details(item):
 
     if poster:
 
-        item["poster"] = urljoin(
-            item["url"],
-            poster
+        poster_url = normalize_url(
+            poster,
+            item["url"]
         )
+
+        if poster_url:
+            item["poster"] = poster_url
 
     else:
 
         for image in parser.images:
 
-            image_url = urljoin(
-                item["url"],
-                image
+            image_url = normalize_url(
+                image,
+                item["url"]
             )
 
-            if image_url.startswith("https://"):
+            if image_url:
                 item["poster"] = image_url
                 break
 
-    # THIS IS THE IMPORTANT NEW PART.
-    # Extract the actual episode video servers.
+    # Extract episode / movie streaming servers.
     item["servers"] = extract_server_urls(
         html,
         parser
     )
 
-    # Refine type using the article's actual title.
     page_title = parser.meta.get("og:title", "")
 
     if page_title:
 
         item["type"] = detect_type(
             clean(page_title),
-            item.get("category", "")
+            item.get("category", ""),
         )
 
 
-# =========================================
-# Main catalogue updater
-# =========================================
+# --------------------------------------------------
+# Save JSON safely
+# --------------------------------------------------
+
+def save_catalogue(items):
+
+    if not items:
+        raise RuntimeError(
+            "Catalogue is empty. Existing JSON was NOT overwritten."
+        )
+
+    OUTPUT.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    data = json.dumps(
+        items,
+        ensure_ascii=False,
+        indent=2,
+    )
+
+    # Validate generated JSON before writing.
+    json.loads(data)
+
+    fd, temporary_path = tempfile.mkstemp(
+        prefix="catalogue_",
+        suffix=".tmp",
+        dir=str(OUTPUT.parent),
+    )
+
+    try:
+
+        with os.fdopen(
+            fd,
+            "w",
+            encoding="utf-8"
+        ) as temporary_file:
+
+            temporary_file.write(data)
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+
+        # Replace the catalogue only after successful validation.
+        os.replace(
+            temporary_path,
+            str(OUTPUT)
+        )
+
+    except Exception:
+
+        try:
+            os.unlink(temporary_path)
+
+        except OSError:
+            pass
+
+        raise
+
+
+# --------------------------------------------------
+# Main
+# --------------------------------------------------
 
 def main():
 
     items = []
     seen = set()
+
+    print("================================")
+    print("Cima4U Catalogue Update Started")
+    print("================================")
 
     print("Fetching Cima4U homepage...")
 
@@ -503,13 +727,13 @@ def main():
     if not home:
 
         raise RuntimeError(
-            "Cannot fetch Cima4U homepage. "
-            "Existing catalogue preserved."
+            "Cima4U homepage unavailable. "
+            "Catalogue has NOT been overwritten."
         )
 
     homepage_parser = parse_page(home)
 
-    # Collect homepage titles.
+    # Homepage content.
     for link in homepage_parser.links:
 
         url = local_url(link["url"])
@@ -520,27 +744,34 @@ def main():
                 items,
                 seen,
                 link["title"],
-                url
+                url,
             )
 
-    # Collect category pages.
+    print("Homepage titles:", len(items))
+
+    # RSS may contain additional titles.
+    collect_feed(items, seen)
+
+    # Category pages.
     categories = collect_categories(home)
 
-    print("Categories found:", len(categories))
+    print("Categories discovered:", len(categories))
 
-    for index, (category_url, category_name) in enumerate(
-        categories,
-        start=1
-    ):
+    for category_index, (
+        category_url,
+        category_name
+    ) in enumerate(categories, start=1):
 
         print(
             "Category",
-            index,
-            "of",
+            category_index,
+            "/",
             len(categories),
             ":",
-            category_name
+            category_name,
         )
+
+        empty_pages = 0
 
         for page in range(1, MAX_PAGES + 1):
 
@@ -561,43 +792,53 @@ def main():
                 page_url,
                 category_name,
                 items,
-                seen
+                seen,
             )
 
-            print(
-                "  Page",
-                page,
-                "- new titles:",
-                count
-            )
+            if count < 0:
 
-            if page > 1 and count == 0:
+                print("  Page fetch failed:", page)
+                empty_pages += 1
+
+            else:
+
+                print(
+                    "  Page",
+                    page,
+                    "- new titles:",
+                    count,
+                )
+
+                if count == 0:
+                    empty_pages += 1
+
+                else:
+                    empty_pages = 0
+
+            # Stop when pagination no longer provides titles.
+            if page > 1 and empty_pages >= 2:
                 break
 
             time.sleep(DELAY)
 
-    # RSS is an additional source.
-    collect_feed(items, seen)
+    print("Total titles discovered:", len(items))
 
     if not items:
 
         raise RuntimeError(
-            "No titles found. "
-            "Existing catalogue preserved."
+            "No titles discovered. "
+            "Catalogue has NOT been overwritten."
         )
 
-    print("Total titles collected:", len(items))
-
-    # Fetch posters, descriptions and servers.
+    # Extract metadata and servers for the first MAX_DETAILS items.
     detail_count = min(
         len(items),
         MAX_DETAILS
     )
 
     print(
-        "Extracting details for",
+        "Extracting posters, descriptions and servers:",
         detail_count,
-        "titles..."
     )
 
     for index, item in enumerate(
@@ -611,7 +852,7 @@ def main():
             "/",
             detail_count,
             ":",
-            item["title"]
+            item["title"],
         )
 
         try:
@@ -621,47 +862,40 @@ def main():
         except Exception as error:
 
             print(
-                "Detail extraction failed:",
-                str(error)
+                "Details extraction error:",
+                item["url"],
+                str(error),
             )
 
         time.sleep(DELAY)
 
-    # Save safely only after successful collection.
-    temporary = OUTPUT.with_suffix(".tmp")
+    # Preserve the established JSON schema.
+    # index.html and player.js expect these fields.
+    for item in items:
 
-    temporary.write_text(
-        json.dumps(
-            items,
-            ensure_ascii=False,
-            indent=2
-        ),
-        encoding="utf-8"
-    )
+        item.setdefault("title", "")
+        item.setdefault("url", "")
+        item.setdefault("description", "")
+        item.setdefault("type", "movie")
+        item.setdefault("category", "")
+        item.setdefault("poster", "")
+        item.setdefault("servers", [])
 
-    temporary.replace(OUTPUT)
+    save_catalogue(items)
 
-    print("--------------------------------")
-    print("Catalogue successfully updated.")
+    print("================================")
+    print("Catalogue generated successfully.")
     print("Total titles:", len(items))
-
     print(
-        "With posters:",
-        sum(
-            1 for item in items
-            if item["poster"]
-        )
+        "Titles with posters:",
+        sum(1 for item in items if item["poster"]),
     )
-
     print(
-        "With servers:",
-        sum(
-            1 for item in items
-            if item["servers"]
-        )
+        "Titles with video servers:",
+        sum(1 for item in items if item["servers"]),
     )
-
-    print("Saved to:", OUTPUT)
+    print("Output:", OUTPUT)
+    print("================================")
 
 
 if __name__ == "__main__":
