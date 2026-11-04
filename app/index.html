@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOVY TV</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#090b10;color:#f5f6f8;font-family:Arial,sans-serif}
+body{overflow-x:hidden}.top{height:76px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;background:#0d1119;border-bottom:1px solid #303744}
+.brand{font-size:32px;font-weight:bold;letter-spacing:5px}.brand span{font-size:16px;color:#e6b75b}
+nav{height:66px;padding:0 4%;display:flex;gap:14px;background:#0d1119}
+button{font-family:Arial,sans-serif;cursor:pointer}.navbtn,.back{background:transparent;color:#b8c0cd;border:2px solid transparent;padding:13px 20px;font-size:17px;font-weight:bold;letter-spacing:2px}
+button:focus,input:focus{outline:3px solid #f2c66d;outline-offset:3px}
+main{padding:28px 4%;min-height:700px}.hidden{display:none!important}
+.hero{height:310px;padding:40px 5%;display:flex;align-items:center;background:linear-gradient(110deg,#1e2a3b,#151923 55%,#34251c);border:1px solid #3b4350;border-radius:10px}
+.eyebrow{color:#e6b75b;font-size:13px;letter-spacing:4px;font-weight:bold}
+h1{font-size:42px;margin:12px 0}p{font-size:20px;line-height:1.45;color:#c4cad4;max-width:750px}
+.primary{background:#e6b75b;color:#171717;border:0;padding:16px 26px;font-size:16px;font-weight:bold;border-radius:4px}
+h2{font-size:22px;letter-spacing:2px;margin:30px 0 16px}
+.cards{display:flex;flex-wrap:wrap;gap:16px}.card{width:19%;min-width:175px;height:220px;text-align:left;padding:18px;display:flex;flex-direction:column;justify-content:flex-end;color:white;border:2px solid #394352;border-radius:8px;background:linear-gradient(145deg,#30445c,#171c26 70%,#4b3825)}
+.card:nth-child(2n){background:linear-gradient(145deg,#49303d,#171c26 70%,#333047)}
+.card strong{font-size:22px;line-height:1.15}.card small{font-size:15px;color:#cbd1db;margin-top:9px}
+.viewhead{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}
+#search{width:70%;height:58px;background:#171c26;color:white;border:2px solid #4a5566;border-radius:5px;font-size:22px;padding:0 16px;margin:20px 0}
+.detail{display:flex;gap:40px;padding:20px}.art{width:280px;height:390px;flex-shrink:0;border-radius:8px;background:linear-gradient(145deg,#35465d,#161b25 65%,#65472d);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:32px;font-weight:bold}
+.meta{color:#e6b75b;font-size:18px}.desc{font-size:21px;line-height:1.55;max-width:850px}
+.player{width:100%;height:0;padding-bottom:56.25%;position:relative;background:black;border:1px solid #39404d}
+iframe{position:absolute;width:100%;height:100%;border:0;background:#000}
+.note{font-size:16px;color:#aeb6c3}footer{text-align:center;color:#687181;padding:22px;font-size:12px;letter-spacing:2px}
+@media(max-width:900px){.card{width:30%;min-width:150px}.detail{display:block}.art{display:none}}
+</style></head><body>
+<div class="top"><div class="brand">MOVY <span>TV</span></div><div class="eyebrow">SAMSUNG EDITION</div></div>
+<nav><button class="navbtn" data-page="home">HOME</button><button class="navbtn" data-page="movies">MOVIES</button><button class="navbtn" data-page="searchpage">SEARCH</button></nav>
+<main>
+<section id="home" class="page"><div class="hero"><div><div class="eyebrow">MADE FOR YOUR TV</div><h1>MOVY, made simple.</h1><p>Browse with your Samsung remote. Open a title to see details and try the embedded player.</p><button class="primary" id="browse">BROWSE MOVIES</button></div></div><h2>FEATURED MOVIES</h2><div id="featured" class="cards"></div></section>
+<section id="movies" class="page hidden"><div class="viewhead"><div><div class="eyebrow">THE LIBRARY</div><h1>Movies</h1></div><span id="count" class="note"></span></div><div id="allcards" class="cards"></div></section>
+<section id="searchpage" class="page hidden"><div class="eyebrow">FIND SOMETHING TO WATCH</div><h1>Search</h1><input id="search" placeholder="Type a movie title"><div id="results" class="cards"></div></section>
+<section id="detail" class="page hidden"><button id="backdetail" class="back">‹ BACK</button><div id="detailcontent" class="detail"></div></section>
+<section id="playerpage" class="page hidden"><button id="backplayer" class="back">‹ BACK TO TITLE</button><div class="eyebrow">PLAYER</div><h1 id="playertitle"></h1><div class="player"><iframe id="frame" src="about:blank" allowfullscreen allow="encrypted-media; autoplay *; fullscreen *"></iframe></div><p class="note">If the player stays black, this older TV browser may not support the embed. Try the MOVY title page.</p><button class="primary" id="openmovy">OPEN MOVY TITLE PAGE</button></section>
+</main><footer>MOVY TV · LIGHTWEIGHT EDITION · SAMSUNG TIZEN</footer>
+<script>
+(function(){
+var data=[
+{id:155,title:"The Dark Knight",year:"2008",rating:"8.5",genre:"Action · Thriller · Crime",desc:"Batman raises the stakes in his war on crime, with the help of Lt. Jim Gordon and District Attorney Harvey Dent.",slug:"/movie/155"},
+{id:791523,title:"Wildwood",year:"2026",rating:"8.6",genre:"Animation · Adventure · Fantasy",desc:"Prue and Curtis are drawn into a magical forest filled with enchanted creatures as they try to rescue Prue's baby brother.",slug:"/movie/791523"},
+{id:969681,title:"Spider-Man: Brand New Day",year:"2026",rating:"8.5",genre:"Science Fiction · Action · Adventure",desc:"Peter Parker fights crime in a world that doesn't remember him, while a new threat puts the city in danger.",slug:"/movie/969681"},
+{id:1101412,title:"Fall 2: Deadpoint",year:"2026",rating:"7.3",genre:"Thriller",desc:"Two climbers become trapped thousands of feet above the ground on a perilous climb across Thailand's Mount Kwan.",slug:"/movie/1101412"},
+{id:1283515,title:"Verity",year:"2026",rating:"6.9",genre:"Mystery · Thriller",desc:"A ghostwriter uncovers autobiographical notes that may reveal a lethal conspiracy.",slug:"/movie/1283515"},
+{id:1368337,title:"The Odyssey",year:"2026",rating:"8.0",genre:"Adventure · Action · Fantasy",desc:"Odysseus, the legendary King of Ithaca, embarks on a perilous journey home following the Trojan War.",slug:"/movie/1368337"}
+],selected=null,pages=["home","movies","searchpage","detail","playerpage"];
+function byid(x){return document.getElementById(x)}
+function show(name){var i;for(i=0;i<pages.length;i++)byid(pages[i]).className="page"+(pages[i]===name?"":" hidden");}
+function makeCard(m){var b=document.createElement("button"),s=document.createElement("strong"),d=document.createElement("small");b.className="card";b.type="button";s.appendChild(document.createTextNode(m.title));d.appendChild(document.createTextNode(m.year+" · ★ "+m.rating));b.appendChild(s);b.appendChild(d);b.onclick=function(){details(m.id)};return b;}
+function render(id,list){var n=byid(id),i;while(n.firstChild)n.removeChild(n.firstChild);for(i=0;i<list.length;i++)n.appendChild(makeCard(list[i]));}
+function lookup(id){var i;for(i=0;i<data.length;i++)if(String(data[i].id)===String(id))return data[i];return null;}
+function details(id){selected=lookup(id);if(!selected)return;var root=byid("detailcontent");while(root.firstChild)root.removeChild(root.firstChild);var art=document.createElement("div"),copy=document.createElement("div"),h=document.createElement("h1"),meta=document.createElement("div"),p=document.createElement("p"),play=document.createElement("button");art.className="art";art.appendChild(document.createTextNode(selected.title));h.appendChild(document.createTextNode(selected.title));meta.className="meta";meta.appendChild(document.createTextNode(selected.year+" · ★ "+selected.rating+" · "+selected.genre));p.className="desc";p.appendChild(document.createTextNode(selected.desc));play.className="primary";play.appendChild(document.createTextNode("PLAY"));play.onclick=playTitle;copy.appendChild(h);copy.appendChild(meta);copy.appendChild(p);copy.appendChild(play);root.appendChild(art);root.appendChild(copy);show("detail");play.focus();}
+function playTitle(){if(!selected)return;byid("playertitle").innerHTML="";byid("playertitle").appendChild(document.createTextNode(selected.title));byid("frame").src="https://vidy.st/movie/"+selected.id+"?color=E6B75B";byid("openmovy").onclick=function(){window.location.href="https://www.movy.sx"+selected.slug;};show("playerpage");byid("backplayer").focus();}
+function search(){var q=byid("search").value.toLowerCase(),r=[],i;for(i=0;i<data.length;i++)if(data[i].title.toLowerCase().indexOf(q)>=0)r.push(data[i]);render("results",r);}
+function init(){render("featured",data.slice(0,5));render("allcards",data);byid("count").innerHTML=data.length+" STARTER TITLES";var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){show(this.getAttribute("data-page"));};byid("browse").onclick=function(){show("movies");};byid("backdetail").onclick=function(){show("movies");};byid("backplayer").onclick=function(){byid("frame").src="about:blank";show("detail");};byid("search").onkeyup=search;byid("search").onkeydown=function(e){if((e.keyCode||e.which)===13){var b=byid("results").getElementsByTagName("button")[0];if(b)b.focus();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(byid("playerpage").className.indexOf("hidden")<0)byid("backplayer").click();else if(byid("detail").className.indexOf("hidden")<0)byid("backdetail").click();}};show("home");}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script></body></html>
