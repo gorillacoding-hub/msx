@@ -1,33 +1,80 @@
 name: Update Cima4U Catalogue
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"
+workflow_dispatch:
+schedule:
+- cron: "0 */6 * * *"
 
 permissions:
-  contents: write
+contents: write
 
 jobs:
-  update-catalogue:
-    runs-on: ubuntu-latest
+update-catalogue:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+    with:
+      ref: main
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
+  - name: Set up Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.x"
 
-      - name: Generate catalogue
-        run: python cima4u/update_catalogue.py
+  - name: Install Python
+    run: python --version
 
-      - name: Save updated catalogue
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cima4u/catalogue.json
-          git diff --cached --quiet || git commit -m "Update Cima4U catalogue"
-          git push
+  - name: Generate catalogue
+    run: python cima4u/update_catalogue.py
+
+  - name: VERIFY catalogue is valid and NOT empty
+    run: |
+      python -c "
+      import json
+      import os
+
+      path = 'cima4u/catalogue.json'
+
+      if not os.path.exists(path):
+          raise SystemExit('ERROR: catalogue.json was not created!')
+
+      if os.path.getsize(path) == 0:
+          raise SystemExit('ERROR: catalogue.json is EMPTY!')
+
+      with open(path, encoding='utf-8') as f:
+          data = json.load(f)
+
+      if not isinstance(data, list):
+          raise SystemExit('ERROR: Catalogue must be a JSON list!')
+
+      if len(data) == 0:
+          raise SystemExit('ERROR: Catalogue contains ZERO titles!')
+
+      print('VERIFIED: Catalogue contains', len(data), 'titles.')
+      "
+
+  - name: Commit and push catalogue
+    run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      git add cima4u/catalogue.json
+
+      git diff --cached --quiet || git commit -m "Update Cima4U catalogue"
+
+      git push origin main
+
+  - name: Final verification
+    run: |
+      python -c "
+      import json
+
+      with open('cima4u/catalogue.json', encoding='utf-8') as f:
+          data = json.load(f)
+
+      assert len(data) > 0, 'FATAL: Catalogue is empty after update!'
+
+      print('SUCCESS: Published catalogue with', len(data), 'titles.')
+      "
