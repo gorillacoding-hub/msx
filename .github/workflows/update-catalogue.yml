@@ -1,80 +1,87 @@
 name: Update Cima4U Catalogue
 
 on:
-workflow_dispatch:
-schedule:
-- cron: "0 */6 * * *"
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
 
 permissions:
-contents: write
+  contents: write
 
 jobs:
-update-catalogue:
-runs-on: ubuntu-latest
+  update-catalogue:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-    with:
-      ref: main
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
-  - name: Set up Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.x"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
-  - name: Install Python
-    run: python --version
+      - name: Check Python
+        run: python --version
 
-  - name: Generate catalogue
-    run: python cima4u/update_catalogue.py
+      - name: Generate catalogue
+        run: python cima4u/update_catalogue.py
 
-  - name: VERIFY catalogue is valid and NOT empty
-    run: |
-      python -c "
-      import json
-      import os
+      - name: Validate catalogue
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
 
-      path = 'cima4u/catalogue.json'
+          path = "cima4u/catalogue.json"
 
-      if not os.path.exists(path):
-          raise SystemExit('ERROR: catalogue.json was not created!')
+          if not os.path.isfile(path):
+              sys.exit("ERROR: catalogue.json was not created")
 
-      if os.path.getsize(path) == 0:
-          raise SystemExit('ERROR: catalogue.json is EMPTY!')
+          if os.path.getsize(path) == 0:
+              sys.exit("ERROR: catalogue.json is empty")
 
-      with open(path, encoding='utf-8') as f:
-          data = json.load(f)
+          try:
+              with open(path, "r", encoding="utf-8") as f:
+                  data = json.load(f)
+          except Exception as e:
+              sys.exit("ERROR: Invalid JSON: " + str(e))
 
-      if not isinstance(data, list):
-          raise SystemExit('ERROR: Catalogue must be a JSON list!')
+          if not isinstance(data, list):
+              sys.exit("ERROR: Catalogue must be a JSON list")
 
-      if len(data) == 0:
-          raise SystemExit('ERROR: Catalogue contains ZERO titles!')
+          if len(data) == 0:
+              sys.exit("ERROR: Catalogue contains zero titles")
 
-      print('VERIFIED: Catalogue contains', len(data), 'titles.')
-      "
+          print("VALID catalogue:", len(data), "titles")
+          PY
 
-  - name: Commit and push catalogue
-    run: |
-      git config user.name "github-actions[bot]"
-      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Commit and push catalogue
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      git add cima4u/catalogue.json
+          git add cima4u/catalogue.json
 
-      git diff --cached --quiet || git commit -m "Update Cima4U catalogue"
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Cima4U catalogue"
+          fi
 
-      git push origin main
+          git push origin main
 
-  - name: Final verification
-    run: |
-      python -c "
-      import json
+      - name: Verify catalogue after update
+        run: |
+          python - <<'PY'
+          import json
 
-      with open('cima4u/catalogue.json', encoding='utf-8') as f:
-          data = json.load(f)
+          with open("cima4u/catalogue.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
 
-      assert len(data) > 0, 'FATAL: Catalogue is empty after update!'
+          if not isinstance(data, list) or not data:
+              raise SystemExit("ERROR: Published catalogue is invalid or empty")
 
-      print('SUCCESS: Published catalogue with', len(data), 'titles.')
-      "
+          print("SUCCESS: Catalogue contains", len(data), "titles")
+          PY
