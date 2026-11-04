@@ -1,13 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090b10"><title>MOVY TV</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b10">
+<title>MOVY TV</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;background:#090b10;color:#f5f6f8;font-family:Arial,Helvetica,sans-serif}body{overflow-x:hidden}
 .top{height:76px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;background:#0d1119;border-bottom:1px solid #303744}
 .brand{font-size:32px;font-weight:bold;letter-spacing:5px}.brand span{font-size:16px;color:#e6b75b}.status,.muted{color:#a5adbb;font-size:14px;letter-spacing:2px}
-nav{height:66px;padding:0 4%;display:flex;gap:12px;background:#0d1119;align-items:center;flex-wrap:wrap}
+nav{min-height:66px;padding:0 4%;display:flex;gap:12px;background:#0d1119;align-items:center;flex-wrap:wrap}
 button,input{font-family:Arial,Helvetica,sans-serif}button{cursor:pointer}
 .navbtn,.back{background:transparent;color:#b8c0cd;border:2px solid transparent;padding:13px 20px;font-size:17px;font-weight:bold;letter-spacing:2px}
 button:focus,input:focus{outline:4px solid #f2c66d;outline-offset:3px;box-shadow:0 0 0 4px rgba(242,198,109,.22)}
@@ -34,19 +36,38 @@ p{font-size:19px;line-height:1.45;color:#c4cad4;max-width:760px}
 .actions{display:flex;gap:15px;align-items:center;margin-top:16px;flex-wrap:wrap}.note{font-size:15px;color:#aeb6c3}
 .error{padding:18px;border:1px solid #744b42;background:#241a1a;color:#ffd8cc;margin:18px 0}
 footer{text-align:center;color:#687181;padding:22px;font-size:12px;letter-spacing:2px}
+/* Full-screen external playback: no iframe or extra player controls. */
+body.tv-playing{overflow:hidden;background:#000}
+body.tv-playing .top,body.tv-playing nav,body.tv-playing footer{display:none}
+body.tv-playing main{padding:0;margin:0;min-height:100vh}
+body.tv-playing #playerpage{position:fixed;inset:0;z-index:100;background:#000}
+body.tv-playing #playerpage>.eyebrow,body.tv-playing #playerpage>h1{display:none}
+body.tv-playing #backplayer{position:fixed;z-index:110;top:12px;left:12px;background:rgba(15,18,24,.78);color:#fff;border:2px solid #8a929e;border-radius:4px;padding:10px 16px}
+body.tv-playing .player{display:none}
+body.tv-playing .actions{display:none}
 @media(max-width:1000px){.grid .card{width:30%;min-width:145px}.detail{display:block}.art{display:none}.hero{min-height:240px}}
-</style></head>
+</style>
+</head>
 <body>
 <div class="top"><div class="brand">MOVY <span>TV</span></div><div id="status" class="status">CONNECTING…</div></div>
-<nav><button class="navbtn" data-page="home">HOME</button><button class="navbtn" data-page="movies">MOVIES</button><button class="navbtn" data-page="shows">TV SHOWS</button><button class="navbtn" data-page="searchpage">SEARCH</button></nav>
+<nav>
+<button class="navbtn" data-page="home">HOME</button>
+<button class="navbtn" data-page="movies">MOVIES</button>
+<button class="navbtn" data-page="shows">TV SHOWS</button>
+<button class="navbtn" data-page="searchpage">SEARCH</button>
+</nav>
 <main>
-<section id="home" class="page"><div class="hero"><div><div class="eyebrow">BUILT FOR SAMSUNG TIZEN</div><h1>MOVY, made simple.</h1><p>Live catalogue, clear posters and remote-friendly navigation. Choose a title to see details and available playback.</p><button class="primary" id="browse">BROWSE MOVIES</button></div></div><div id="home-rails" class="rails"><div class="note">Loading live catalogue…</div></div></section>
+<section id="home" class="page">
+ <div class="hero"><div><div class="eyebrow">BUILT FOR SAMSUNG TIZEN</div><h1>MOVY, made simple.</h1><p>Live catalogue, clear posters and remote-friendly navigation. Choose a title to see details and playback.</p><button class="primary" id="browse">BROWSE MOVIES</button></div></div>
+ <div id="home-rails" class="rails"><div class="note">Loading live catalogue…</div></div>
+</section>
 <section id="movies" class="page hidden"><div class="headrow"><div><div class="eyebrow">THE LIBRARY</div><h1>Movies</h1></div><span id="movie-count" class="muted"></span></div><div id="movie-grid" class="grid"></div><div class="actions"><button id="more-movies" class="secondary">LOAD MORE</button></div></section>
 <section id="shows" class="page hidden"><div class="eyebrow">THE LIBRARY</div><h1>TV Shows</h1><div id="show-grid" class="grid"></div><div class="actions"><button id="more-shows" class="secondary">LOAD MORE</button></div></section>
 <section id="searchpage" class="page hidden"><div class="eyebrow">FIND SOMETHING TO WATCH</div><h1>Search MOVY catalogue</h1><input id="search" type="text" placeholder="Enter a movie or show title" autocomplete="off"><div id="search-message" class="note">Type a title, then press OK.</div><div id="search-results" class="grid"></div></section>
 <section id="detail" class="page hidden"><button id="backdetail" class="back">‹ BACK</button><div id="detailcontent" class="detail"></div></section>
-<section id="playerpage" class="page hidden"><button id="backplayer" class="back">‹ BACK TO TITLE</button><div class="eyebrow">PLAYER</div><h1 id="playertitle"></h1><div class="player"><iframe id="frame" src="about:blank" allowfullscreen allow="encrypted-media; autoplay *; fullscreen *"></iframe></div><div class="actions"><button class="primary" id="directplayer">OPEN PLAYER DIRECTLY</button><button class="secondary" id="openmovy">OPEN ON MOVY</button><span class="note">If the embedded player is blank, open it directly.</span></div></section>
-</main><footer>MOVY TV · LIVE CATALOGUE EDITION · SAMSUNG TIZEN</footer>
+<section id="playerpage" class="page hidden"><button id="backplayer" class="back">‹ BACK TO TITLE</button><div class="eyebrow">PLAYER</div><h1 id="playertitle"></h1><div class="player"><iframe id="frame" src="about:blank" allowfullscreen allow="encrypted-media; autoplay *; fullscreen *"></iframe></div><div class="actions"><span class="note">Playback opens in the TV browser. Use the player’s own subtitle controls when available.</span></div></section>
+</main>
+<footer>MOVY TV · LIVE CATALOGUE EDITION · SAMSUNG TIZEN</footer>
 <script>
 (function(){
 "use strict";
@@ -60,65 +81,17 @@ function makeCard(m){var b=document.createElement("button"),im=document.createEl
 function render(id,items){var n=el(id),i;while(n.firstChild)n.removeChild(n.firstChild);for(i=0;i<items.length;i++)n.appendChild(makeCard(items[i]));}
 function fetchList(path,type,cb){request(API+path,function(err,data){if(err){cb(err,[]);return;}var a=data&&data.results?data.results:[],out=[],i;for(i=0;i<a.length;i++)if(a[i]&&a[i].id)out.push(normalize(a[i],type));cb(null,out,data);});}
 function addRail(name,items){var s=document.createElement("div"),h=document.createElement("div"),title=document.createElement("h2"),row=document.createElement("div"),i;s.className="rail";h.className="railhead";title.appendChild(document.createTextNode(name));h.appendChild(title);row.className="cards";for(i=0;i<items.length;i++)row.appendChild(makeCard(items[i]));s.appendChild(h);s.appendChild(row);el("home-rails").appendChild(s);}
-function loadHome(){var root=el("home-rails");root.innerHTML="";var jobs=[["Trending Movies","/trending/movie/week?language=en&page=1","movie"],["Popular Movies","/movie/popular?language=en&page=1","movie"],["Trending TV Shows","/trending/tv/week?language=en&page=1","tv"]],left=jobs.length,failed=0,i;for(i=0;i<jobs.length;i++)(function(job){fetchList(job[1],job[2],function(err,items){if(err)failed++;else if(items.length)addRail(job[0],items);left--;if(left===0){el("status").innerHTML=failed===jobs.length?"CATALOGUE OFFLINE":"LIVE CATALOGUE";if(!root.firstChild)root.innerHTML='<div class="error">Catalogue service could not be reached from this TV browser. The browser may be blocking cross-origin requests.</div>';}});})(jobs[i]);}
+function loadHome(){var root=el("home-rails");root.innerHTML="";var jobs=[["Trending Movies","/trending/movie/week?language=en&page=1","movie"],["Popular Movies","/movie/popular?language=en&page=1","movie"],["Trending TV Shows","/trending/tv/week?language=en&page=1","tv"]],left=jobs.length,failed=0,i;for(i=0;i<jobs.length;i++)(function(job){fetchList(job[1],job[2],function(err,items){if(err)failed++;else if(items.length)addRail(job[0],items);left--;if(left===0){el("status").innerHTML=failed===jobs.length?"CATALOGUE OFFLINE":"LIVE CATALOGUE";if(!root.firstChild)root.innerHTML='<div class="error">Catalogue service could not be reached from this TV browser.</div>';}});})(jobs[i]);}
 function loadGrid(type,page,append){var path=type==="movie"?"/movie/popular?language=en&page="+page:"/tv/popular?language=en&page="+page;fetchList(path,type,function(err,items){if(err){el(type==="movie"?"movie-count":"shows").innerHTML="Catalogue error: "+err.message;return;}var target=type==="movie"?"movie-grid":"show-grid",node=el(target),i;if(!append)node.innerHTML="";for(i=0;i<items.length;i++)node.appendChild(makeCard(items[i]));if(type==="movie")el("movie-count").innerHTML=items.length+" titles loaded";});}
 function openDetail(m){selected=m;var root=el("detailcontent");root.innerHTML="";var art=document.createElement("img"),copy=document.createElement("div"),h=document.createElement("h1"),meta=document.createElement("div"),desc=document.createElement("p"),play=document.createElement("button");art.className="art";art.src=m.poster||m.backdrop||"";art.onerror=function(){this.style.visibility="hidden";};h.appendChild(document.createTextNode(m.title));meta.className="meta";meta.appendChild(document.createTextNode((m.year||"Year unknown")+(m.rating?" · ★ "+m.rating:"")+(m.type==="tv"?" · TV SHOW":" · MOVIE")));desc.className="desc";desc.appendChild(document.createTextNode(m.overview||"No description available."));play.className="primary";play.appendChild(document.createTextNode("PLAY"));play.onclick=playTitle;copy.className="detailcopy";copy.appendChild(h);copy.appendChild(meta);copy.appendChild(desc);copy.appendChild(play);root.appendChild(art);root.appendChild(copy);showView("detail");play.focus();}
-function playTitle(){if(!selected)return;el("playertitle").innerHTML="";el("playertitle").appendChild(document.createTextNode(selected.title));var src=selected.type==="tv"?"https://vidy.st/tv/"+selected.id+"/1/1?color=E6B75B&episodeSelector=true&nextEpisode=true":"https://vidy.st/movie/"+selected.id+"?color=E6B75B";var direct=selected.type==="tv"?"https://vidy.st/tv/"+selected.id+"/1/1?color=E6B75B&episodeSelector=true&nextEpisode=true&autoplay=true":"https://vidy.st/movie/"+selected.id+"?color=E6B75B&autoplay=true";el("frame").src=src;el("directplayer").onclick=function(){window.location.href=direct;};el("openmovy").onclick=function(){window.location.href="https://www.movy.sx"+selected.slug;};showView("playerpage");el("backplayer").focus();}
-function runSearch(){var q=el("search").value.replace(/^\\s+|\\s+$/g,"");if(q.length<2){el("search-results").innerHTML="";el("search-message").innerHTML="Enter at least 2 characters.";return;}el("search-message").innerHTML="Searching live catalogue…";request(API+"/search/multi?query="+encodeURIComponent(q)+"&language=en&page=1",function(err,data){if(err){el("search-message").innerHTML="Search failed: "+err.message;return;}var a=data.results||[],out=[],i;for(i=0;i<a.length;i++)if(a[i].id&&(a[i].media_type==="movie"||a[i].media_type==="tv"))out.push(normalize(a[i],a[i].media_type));render("search-results",out);el("search-message").innerHTML=out.length?out.length+" results":"No results found.";});}
-
-function visibleFocusables(){
- var all=document.querySelectorAll("button,input,[tabindex]"),out=[],i,n;
- for(i=0;i<all.length;i++){
-  n=all[i];
-  if(n.disabled||n.tabIndex<0)continue;
-  if(n.offsetWidth===0||n.offsetHeight===0)continue;
-  if(n.className&&String(n.className).indexOf("hidden")>=0)continue;
-  out.push(n);
- }
- return out;
-}
-function moveFocus(direction,current){
- var nodes=visibleFocusables(),cr=current.getBoundingClientRect(),cx=cr.left+cr.width/2,cy=cr.top+cr.height/2;
- var best=null,bestScore=Infinity,i,r,x,y,dx,dy,primary,cross,score;
- for(i=0;i<nodes.length;i++){
-  if(nodes[i]===current)continue;
-  r=nodes[i].getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2;dx=x-cx;dy=y-cy;
-  if(direction==="left"){primary=-dx;cross=Math.abs(dy);}
-  else if(direction==="right"){primary=dx;cross=Math.abs(dy);}
-  else if(direction==="up"){primary=-dy;cross=Math.abs(dx);}
-  else {primary=dy;cross=Math.abs(dx);}
-  if(primary<=2)continue;
-  score=primary+(cross*1.65)+(cross*cross/(primary+1))*.12;
-  if(score<bestScore){bestScore=score;best=nodes[i];}
- }
- if(best){
-  best.focus();
-  try{best.scrollIntoView({block:"nearest",inline:"nearest"});}catch(ignore){}
-  return true;
- }
- return false;
-}
-function installRemoteNavigation(){
- document.addEventListener("keydown",function(e){
-  var k=e.keyCode||e.which,dir=null,active=document.activeElement;
-  if(k===37)dir="left";else if(k===38)dir="up";else if(k===39)dir="right";else if(k===40)dir="down";
-  if(!dir)return;
-  if(active&&active.tagName==="INPUT"&&active.type!=="button"){
-   if(dir==="left"||dir==="right")return;
-   if(dir==="down"||dir==="up"){
-    e.preventDefault();e.stopPropagation();
-    moveFocus(dir,active);return;
-   }
-  }
-  if(active&&moveFocus(dir,active)){
-   e.preventDefault();e.stopPropagation();
-  }else if(active){
-   e.preventDefault();e.stopPropagation();
-  }
- },true);
-}
-
-function init(){installRemoteNavigation();var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){var p=this.getAttribute("data-page");showView(p);if(p==="movies"&&!el("movie-grid").firstChild)loadGrid("movie",moviePage,false);if(p==="shows"&&!el("show-grid").firstChild)loadGrid("tv",showPage,false);};el("browse").onclick=function(){showView("movies");loadGrid("movie",moviePage,false);};el("backdetail").onclick=function(){showView("movies");};el("backplayer").onclick=function(){el("frame").src="about:blank";showView("detail");};el("more-movies").onclick=function(){moviePage++;loadGrid("movie",moviePage,true);};el("more-shows").onclick=function(){showPage++;loadGrid("tv",showPage,true);};el("search").onkeyup=function(){if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,450);};el("search").onkeydown=function(e){if((e.keyCode||e.which)===13){if(searchTimer)clearTimeout(searchTimer);runSearch();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(el("playerpage").className.indexOf("hidden")<0)el("backplayer").click();else if(el("detail").className.indexOf("hidden")<0)el("backdetail").click();}};showView("home");loadHome();}
+function playTitle(){if(!selected)return;var url;if(selected.type==="tv"){url="https://vidy.st/tv/"+selected.id+"/1/1?color=E6B75B&episodeSelector=true&nextEpisode=true&autoplay=true";}else{url="https://vidy.st/movie/"+selected.id+"?color=E6B75B&autoplay=true";}window.location.href=url;}
+function runSearch(){var q=el("search").value.replace(/^\s+|\s+$/g,"");if(q.length<2){el("search-results").innerHTML="";el("search-message").innerHTML="Enter at least 2 characters.";return;}el("search-message").innerHTML="Searching live catalogue…";request(API+"/search/multi?query="+encodeURIComponent(q)+"&language=en&page=1",function(err,data){if(err){el("search-message").innerHTML="Search failed: "+err.message;return;}var a=data.results||[],out=[],i;for(i=0;i<a.length;i++)if(a[i].id&&(a[i].media_type==="movie"||a[i].media_type==="tv"))out.push(normalize(a[i],a[i].media_type));render("search-results",out);el("search-message").innerHTML=out.length?out.length+" results":"No results found.";});}
+function visibleFocusables(){var all=document.querySelectorAll("button,input,[tabindex]"),out=[],i,n;for(i=0;i<all.length;i++){n=all[i];if(n.disabled||n.tabIndex<0)continue;if(n.offsetWidth===0||n.offsetHeight===0)continue;if(n.className&&String(n.className).indexOf("hidden")>=0)continue;out.push(n);}return out;}
+function moveFocus(direction,current){var nodes=visibleFocusables(),cr=current.getBoundingClientRect(),cx=cr.left+cr.width/2,cy=cr.top+cr.height/2,best=null,bestScore=Infinity,i,r,x,y,dx,dy,primary,cross,score;for(i=0;i<nodes.length;i++){if(nodes[i]===current)continue;r=nodes[i].getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2;dx=x-cx;dy=y-cy;if(direction==="left"){primary=-dx;cross=Math.abs(dy);}else if(direction==="right"){primary=dx;cross=Math.abs(dy);}else if(direction==="up"){primary=-dy;cross=Math.abs(dx);}else{primary=dy;cross=Math.abs(dx);}if(primary<=2)continue;score=primary+(cross*1.65)+(cross*cross/(primary+1))*.12;if(score<bestScore){bestScore=score;best=nodes[i];}}if(best){best.focus();try{best.scrollIntoView({block:"nearest",inline:"nearest"});}catch(ignore){}return true;}return false;}
+function installRemoteNavigation(){document.addEventListener("keydown",function(e){var k=e.keyCode||e.which,dir=null,active=document.activeElement;if(k===37)dir="left";else if(k===38)dir="up";else if(k===39)dir="right";else if(k===40)dir="down";if(!dir)return;if(active&&active.tagName==="INPUT"&&active.type!=="button"){if(dir==="left"||dir==="right")return;if(dir==="down"||dir==="up"){e.preventDefault();e.stopPropagation();moveFocus(dir,active);return;}}if(active&&moveFocus(dir,active)){e.preventDefault();e.stopPropagation();}else if(active){e.preventDefault();e.stopPropagation();}},true);}
+function init(){installRemoteNavigation();var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){var p=this.getAttribute("data-page");showView(p);if(p==="movies"&&!el("movie-grid").firstChild)loadGrid("movie",moviePage,false);if(p==="shows"&&!el("show-grid").firstChild)loadGrid("tv",showPage,false);};el("browse").onclick=function(){showView("movies");loadGrid("movie",moviePage,false);};el("backdetail").onclick=function(){showView("movies");};el("backplayer").onclick=function(){window.history.back();};el("more-movies").onclick=function(){moviePage++;loadGrid("movie",moviePage,true);};el("more-shows").onclick=function(){showPage++;loadGrid("tv",showPage,true);};el("search").onkeyup=function(){if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,450);};el("search").onkeydown=function(e){if((e.keyCode||e.which)===13){if(searchTimer)clearTimeout(searchTimer);runSearch();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(el("detail").className.indexOf("hidden")<0)el("backdetail").click();}};showView("home");loadHome();}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
-</script></body></html>
+</script>
+</body>
+</html>
