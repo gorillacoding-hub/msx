@@ -1,0 +1,17 @@
+
+{
+  "type": "pages",
+  "headline": "MOVY",
+  "template": {
+    "type": "separate",
+    "layout": "0,0,12,6",
+    "label": "OPEN MOVY",
+    "action": "link:window:https://www.movy.sx/"
+  },
+  "items": [
+    {
+      "label": "MOVY",
+      "action": "link:window:https://www.movy.sx/"
+    }
+  ]
+}
