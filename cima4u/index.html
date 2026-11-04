@@ -4,77 +4,255 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cima4U</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#101116;color:#fff;font-family:Arial,sans-serif}
-header{padding:17px 22px;background:#191a22;border-bottom:2px solid #e50935}
-.logo{font-size:28px;font-weight:bold;color:#e50935}
-nav{display:flex;gap:9px;flex-wrap:wrap;padding:14px 20px;background:#191a22}
-button{background:#252732;color:#fff;border:1px solid #454754;padding:12px 17px;border-radius:5px;font-size:15px;cursor:pointer}
-button:focus,.card:focus,input:focus{outline:3px solid #e50935;outline-offset:2px}
-button.active{background:#e50935;border-color:#e50935}
-button:disabled{opacity:.35}
-.search{padding:15px 20px}
-#search{width:100%;max-width:650px;padding:14px;background:#20212a;color:white;border:1px solid #454754;border-radius:5px;font-size:17px}
-#status{padding:10px 20px;color:#bbb}
-h2{margin:15px 20px}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:15px;padding:15px 20px}
-.card{background:#1c1e27;border:1px solid #30323c;border-radius:7px;overflow:hidden;cursor:pointer;min-width:0}
-.card img,.placeholder{width:100%;height:205px;object-fit:cover;display:block;background:#292b35}
-.placeholder{display:flex;align-items:center;justify-content:center;color:#e50935;font-size:23px;font-weight:bold}
-.card-title{padding:11px;font-size:14px;line-height:1.4;min-height:58px}
-#details{display:none;padding:20px;max-width:900px}
-#details h2{margin:15px 0;font-size:25px}
-#details p{color:#ccc;line-height:1.6}
-#detailPoster{max-width:210px;max-height:290px;object-fit:cover}
-#servers{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
-#servers button{background:#e50935;border:0}
-#pages{display:flex;justify-content:center;align-items:center;gap:15px;padding:20px}
-#pageNumber{color:#bbb}
-.empty{padding:25px;color:#aaa}
-footer{text-align:center;padding:25px;color:#777;font-size:12px}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #101116;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 17px 22px;
+    background: #191a22;
+    border-bottom: 2px solid #e50935;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e50935;
+}
+
+nav {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    background: #191a22;
+}
+
+button {
+    background: #252732;
+    color: #fff;
+    border: 1px solid #454754;
+    padding: 12px 17px;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:focus,
+.card:focus,
+input:focus {
+    outline: 3px solid #e50935;
+    outline-offset: 2px;
+}
+
+button.active {
+    background: #e50935;
+    border-color: #e50935;
+}
+
+button:disabled {
+    opacity: .35;
+}
+
+.search {
+    padding: 15px 20px;
+}
+
+#search {
+    width: 100%;
+    max-width: 650px;
+    padding: 14px;
+    background: #20212a;
+    color: white;
+    border: 1px solid #454754;
+    border-radius: 5px;
+    font-size: 17px;
+}
+
+#status {
+    padding: 10px 20px;
+    color: #bbb;
+}
+
+h2 {
+    margin: 15px 20px;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 15px;
+    padding: 15px 20px;
+}
+
+.card {
+    background: #1c1e27;
+    border: 1px solid #30323c;
+    border-radius: 7px;
+    overflow: hidden;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.card img,
+.placeholder {
+    width: 100%;
+    height: 205px;
+    object-fit: cover;
+    display: block;
+    background: #292b35;
+}
+
+.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e50935;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.card-title {
+    padding: 11px;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 58px;
+}
+
+#details {
+    display: none;
+    padding: 20px;
+    max-width: 900px;
+}
+
+#details h2 {
+    margin: 15px 0;
+    font-size: 25px;
+}
+
+#details p {
+    color: #ccc;
+    line-height: 1.6;
+}
+
+#detailPoster {
+    max-width: 210px;
+    max-height: 290px;
+    object-fit: cover;
+}
+
+#servers {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+#servers button {
+    background: #e50935;
+    border: 0;
+    min-width: 130px;
+    padding: 16px 24px;
+    font-size: 18px;
+}
+
+#pages {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+#pageNumber {
+    color: #bbb;
+}
+
+.empty {
+    padding: 25px;
+    color: #aaa;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 12px;
+}
 </style>
 </head>
+
 <body>
 
-<header><div class="logo">CIMA4U</div></header>
+<header>
+    <div class="logo">CIMA4U</div>
+</header>
 
 <nav id="nav">
-<button class="active" data-type="all">Home</button>
-<button data-type="movie">Movies</button>
-<button data-type="series">Series</button>
-<button data-type="anime">Anime</button>
+    <button class="active" data-type="all">Home</button>
+    <button data-type="movie">Movies</button>
+    <button data-type="series">Series</button>
+    <button data-type="anime">Anime</button>
 </nav>
 
 <div class="search">
-<input id="search" type="text" placeholder="Search movies, series and anime..." autocomplete="off">
+    <input
+        id="search"
+        type="text"
+        placeholder="Search movies, series and anime..."
+        autocomplete="off">
 </div>
 
 <div id="status">Loading catalogue...</div>
 
 <main>
+
 <section id="listing">
-<h2 id="heading">Latest titles</h2>
-<div id="grid"></div>
-<div id="pages">
-<button id="previous">Previous</button>
-<span id="pageNumber">1</span>
-<button id="next">Next</button>
-</div>
+    <h2 id="heading">Latest titles</h2>
+
+    <div id="grid"></div>
+
+    <div id="pages">
+        <button id="previous">Previous</button>
+        <span id="pageNumber">1</span>
+        <button id="next">Next</button>
+    </div>
 </section>
 
 <section id="details">
-<button id="back">Back to titles</button>
-<h2 id="detailTitle"></h2>
-<img id="detailPoster" alt="" style="display:none">
-<p id="detailType"></p>
-<p id="description"></p>
-<h3>Available servers</h3>
-<div id="servers"></div>
-<p id="noServers" style="display:none">
-No server was found for this title. The catalogue extractor may not have found its embedded player.
-</p>
+
+    <button id="back">Back to titles</button>
+
+    <h2 id="detailTitle"></h2>
+
+    <img
+        id="detailPoster"
+        alt=""
+        style="display:none">
+
+    <p id="detailType"></p>
+
+    <p id="description"></p>
+
+    <h3>Watch</h3>
+
+    <div id="servers"></div>
+
+    <p id="noServers" style="display:none">
+        Unable to open this title. Please check its episode page.
+    </p>
+
 </section>
+
 </main>
 
 <footer>Cima4U Frontend</footer>
@@ -83,264 +261,403 @@ No server was found for this title. The catalogue extractor may not have found i
 (function(){
 "use strict";
 
-var catalogue=[];
-var filtered=[];
-var type="all";
-var page=1;
-var pageSize=18;
-var selected=null;
+var catalogue = [];
+var filtered = [];
+var type = "all";
+var page = 1;
+var pageSize = 18;
+var selected = null;
 
-var grid=document.getElementById("grid");
-var search=document.getElementById("search");
-var listing=document.getElementById("listing");
-var details=document.getElementById("details");
-var status=document.getElementById("status");
+var grid = document.getElementById("grid");
+var search = document.getElementById("search");
+var listing = document.getElementById("listing");
+var details = document.getElementById("details");
+var status = document.getElementById("status");
 
 function clean(value){
-return String(value||"");
+    return String(value || "");
 }
 
 function getType(item){
-var value=(clean(item.type)+" "+clean(item.category)+" "+clean(item.title)).toLowerCase();
+    var value = (
+        clean(item.type) + " " +
+        clean(item.category) + " " +
+        clean(item.title)
+    ).toLowerCase();
 
-if(value.indexOf("anime")!==-1||value.indexOf("أنمي")!==-1||value.indexOf("انمي")!==-1)return "anime";
-if(value.indexOf("series")!==-1||value.indexOf("مسلسل")!==-1||value.indexOf("الحلقة")!==-1||value.indexOf("episode")!==-1||value.indexOf("season")!==-1||value.indexOf("الموسم")!==-1)return "series";
-if(value.indexOf("movie")!==-1||value.indexOf("فيلم")!==-1)return "movie";
-return clean(item.type)||"movie";
+    if (
+        value.indexOf("anime") !== -1 ||
+        value.indexOf("أنمي") !== -1 ||
+        value.indexOf("انمي") !== -1
+    ) {
+        return "anime";
+    }
+
+    if (
+        value.indexOf("series") !== -1 ||
+        value.indexOf("مسلسل") !== -1 ||
+        value.indexOf("الحلقة") !== -1 ||
+        value.indexOf("episode") !== -1 ||
+        value.indexOf("season") !== -1 ||
+        value.indexOf("الموسم") !== -1
+    ) {
+        return "series";
+    }
+
+    if (
+        value.indexOf("movie") !== -1 ||
+        value.indexOf("فيلم") !== -1
+    ) {
+        return "movie";
+    }
+
+    return clean(item.type) || "movie";
 }
 
 function placeholder(){
-var el=document.createElement("div");
-el.className="placeholder";
-el.textContent="CIMA4U";
-return el;
+    var el = document.createElement("div");
+
+    el.className = "placeholder";
+    el.textContent = "CIMA4U";
+
+    return el;
 }
 
 function applyFilters(){
-var query=search.value.toLowerCase().replace(/^\s+|\s+$/g,"");
-filtered=[];
+    var query = search.value.toLowerCase().replace(/^\s+|\s+$/g, "");
 
-for(var i=0;i<catalogue.length;i++){
-var item=catalogue[i];
-var itemType=getType(item);
-var content=(clean(item.title)+" "+clean(item.description)+" "+clean(item.category)).toLowerCase();
+    filtered = [];
 
-if(type!=="all"&&itemType!==type)continue;
-if(query&&content.indexOf(query)===-1)continue;
+    for(var i = 0; i < catalogue.length; i++){
 
-filtered.push(item);
-}
+        var item = catalogue[i];
+        var itemType = getType(item);
 
-page=1;
-render();
+        var content = (
+            clean(item.title) + " " +
+            clean(item.description) + " " +
+            clean(item.category)
+        ).toLowerCase();
+
+        if(type !== "all" && itemType !== type){
+            continue;
+        }
+
+        if(query && content.indexOf(query) === -1){
+            continue;
+        }
+
+        filtered.push(item);
+    }
+
+    page = 1;
+    render();
 }
 
 function render(){
-grid.innerHTML="";
+    grid.innerHTML = "";
 
-var start=(page-1)*pageSize;
-var end=Math.min(start+pageSize,filtered.length);
+    var start = (page - 1) * pageSize;
+    var end = Math.min(start + pageSize, filtered.length);
 
-for(var i=start;i<end;i++){
-(function(item){
-var card=document.createElement("div");
-card.className="card";
-card.tabIndex=0;
-card.setAttribute("role","button");
+    for(var i = start; i < end; i++){
 
-var poster=clean(item.poster);
+        (function(item){
 
-if(poster.indexOf("https://")===0){
-var img=document.createElement("img");
-img.src=poster;
-img.alt=clean(item.title);
-img.onerror=function(){
-this.parentNode.replaceChild(placeholder(),this);
-};
-card.appendChild(img);
-}else{
-card.appendChild(placeholder());
-}
+            var card = document.createElement("div");
 
-var title=document.createElement("div");
-title.className="card-title";
-title.textContent=clean(item.title);
-card.appendChild(title);
+            card.className = "card";
+            card.tabIndex = 0;
+            card.setAttribute("role", "button");
 
-card.onclick=function(){openDetails(item);};
-card.onkeydown=function(event){
-event=event||window.event;
-if(event.keyCode===13||event.keyCode===32){
-event.preventDefault();
-openDetails(item);
-}
-};
+            var poster = clean(item.poster);
 
-grid.appendChild(card);
-})(filtered[i]);
-}
+            if(poster.indexOf("https://") === 0){
 
-if(filtered.length===0){
-var empty=document.createElement("div");
-empty.className="empty";
-empty.textContent="No titles found.";
-grid.appendChild(empty);
-}
+                var img = document.createElement("img");
 
-document.getElementById("pageNumber").textContent=
-filtered.length===0?"0 / 0":page+" / "+Math.ceil(filtered.length/pageSize);
+                img.src = poster;
+                img.alt = clean(item.title);
 
-document.getElementById("previous").disabled=page<=1;
-document.getElementById("next").disabled=page>=Math.ceil(filtered.length/pageSize);
+                img.onerror = function(){
+                    this.parentNode.replaceChild(
+                        placeholder(),
+                        this
+                    );
+                };
 
-document.getElementById("heading").textContent=
-type==="all"?"Latest titles":
-type==="movie"?"Movies":
-type==="series"?"Series":"Anime";
+                card.appendChild(img);
 
+            } else {
+                card.appendChild(placeholder());
+            }
+
+            var title = document.createElement("div");
+
+            title.className = "card-title";
+            title.textContent = clean(item.title);
+
+            card.appendChild(title);
+
+            card.onclick = function(){
+                openDetails(item);
+            };
+
+            card.onkeydown = function(event){
+
+                event = event || window.event;
+
+                if(event.keyCode === 13 || event.keyCode === 32){
+
+                    event.preventDefault();
+                    openDetails(item);
+                }
+            };
+
+            grid.appendChild(card);
+
+        })(filtered[i]);
+    }
+
+    if(filtered.length === 0){
+
+        var empty = document.createElement("div");
+
+        empty.className = "empty";
+        empty.textContent = "No titles found.";
+
+        grid.appendChild(empty);
+    }
+
+    document.getElementById("pageNumber").textContent =
+        filtered.length === 0
+        ? "0 / 0"
+        : page + " / " + Math.ceil(filtered.length / pageSize);
+
+    document.getElementById("previous").disabled = page <= 1;
+
+    document.getElementById("next").disabled =
+        page >= Math.ceil(filtered.length / pageSize);
+
+    document.getElementById("heading").textContent =
+        type === "all"
+        ? "Latest titles"
+        : type === "movie"
+        ? "Movies"
+        : type === "series"
+        ? "Series"
+        : "Anime";
 }
 
 function openDetails(item){
-selected=item;
-listing.style.display="none";
-details.style.display="block";
 
-document.getElementById("detailTitle").textContent=clean(item.title);
-document.getElementById("detailType").textContent=getType(item).toUpperCase();
-document.getElementById("description").textContent=clean(item.description)||"No description available.";
+    selected = item;
 
-var poster=document.getElementById("detailPoster");
-if(clean(item.poster).indexOf("https://")===0){
-poster.src=item.poster;
-poster.style.display="block";
-}else{
-poster.style.display="none";
+    listing.style.display = "none";
+    details.style.display = "block";
+
+    document.getElementById("detailTitle").textContent =
+        clean(item.title);
+
+    document.getElementById("detailType").textContent =
+        getType(item).toUpperCase();
+
+    document.getElementById("description").textContent =
+        clean(item.description) || "No description available.";
+
+    var poster = document.getElementById("detailPoster");
+
+    if(clean(item.poster).indexOf("https://") === 0){
+
+        poster.src = item.poster;
+        poster.style.display = "block";
+
+    } else {
+        poster.style.display = "none";
+    }
+
+    renderServers(item);
+
+    window.scrollTo(0, 0);
 }
 
-renderServers(item);
-window.scrollTo(0,0);
-}
+/*
+ * Open the original Cima4U episode page.
+ * The original JPlayer and its server selector
+ * are expected to load inside player.html.
+ */
 
 function renderServers(item){
-var container=document.getElementById("servers");
-var noServers=document.getElementById("noServers");
-container.innerHTML="";
 
-var servers=item.servers||[];
-var valid=[];
+    var container = document.getElementById("servers");
+    var noServers = document.getElementById("noServers");
 
-if(Object.prototype.toString.call(servers)!=="[object Array]"){
-servers=[];
+    container.innerHTML = "";
+
+    var episodeUrl = clean(item.url);
+
+    if(episodeUrl.indexOf("https://") === 0){
+
+        noServers.style.display = "none";
+
+        var button = document.createElement("button");
+
+        button.textContent = "WATCH";
+        button.tabIndex = 0;
+
+        button.onclick = function(){
+            openPlayer(episodeUrl, item.title);
+        };
+
+        container.appendChild(button);
+
+    } else {
+
+        noServers.style.display = "block";
+    }
 }
 
-for(var i=0;i<servers.length;i++){
-var server=servers[i];
-var url=typeof server==="string"?server:clean(server.url||server.src);
-var name=typeof server==="string"?"Server "+(i+1):clean(server.name)||"Server "+(i+1);
+function openPlayer(url, name){
 
-if(url.indexOf("https://")!==0)continue;
-
-valid.push({url:url,name:name});
-}
-
-noServers.style.display=valid.length?"none":"block";
-
-for(var j=0;j<valid.length;j++){
-(function(server,index){
-var button=document.createElement("button");
-button.textContent=server.name;
-button.onclick=function(){
-openPlayer(server.url,server.name);
-};
-container.appendChild(button);
-})(valid[j],j);
-}
-}
-
-function openPlayer(url,name){
-var params="server1="+encodeURIComponent(url)+
-"&name1="+encodeURIComponent(name);
-
-window.location.href="player.html?"+params;
+    window.location.href =
+        "player.html?episode=" +
+        encodeURIComponent(url) +
+        "&name=" +
+        encodeURIComponent(name || "");
 }
 
 function closeDetails(){
-details.style.display="none";
-listing.style.display="block";
-selected=null;
-window.scrollTo(0,0);
+
+    details.style.display = "none";
+    listing.style.display = "block";
+
+    selected = null;
+
+    window.scrollTo(0, 0);
 }
 
-document.getElementById("nav").onclick=function(event){
-event=event||window.event;
-var target=event.target||event.srcElement;
-var selectedType=target.getAttribute("data-type");
+document.getElementById("nav").onclick = function(event){
 
-if(!selectedType)return;
+    event = event || window.event;
 
-type=selectedType;
-var buttons=this.getElementsByTagName("button");
+    var target = event.target || event.srcElement;
 
-for(var i=0;i<buttons.length;i++){
-buttons[i].className=buttons[i].getAttribute("data-type")===type?"active":"";
-}
+    var selectedType = target.getAttribute("data-type");
 
-applyFilters();
+    if(!selectedType){
+        return;
+    }
+
+    type = selectedType;
+
+    var buttons = this.getElementsByTagName("button");
+
+    for(var i = 0; i < buttons.length; i++){
+
+        buttons[i].className =
+            buttons[i].getAttribute("data-type") === type
+            ? "active"
+            : "";
+    }
+
+    applyFilters();
 };
 
-search.onkeyup=applyFilters;
-document.getElementById("back").onclick=closeDetails;
+search.onkeyup = applyFilters;
 
-document.getElementById("previous").onclick=function(){
-if(page>1){page--;render();}
+document.getElementById("back").onclick = closeDetails;
+
+document.getElementById("previous").onclick = function(){
+
+    if(page > 1){
+        page--;
+        render();
+    }
 };
 
-document.getElementById("next").onclick=function(){
-if(page<Math.ceil(filtered.length/pageSize)){page++;render();}
+document.getElementById("next").onclick = function(){
+
+    if(page < Math.ceil(filtered.length / pageSize)){
+        page++;
+        render();
+    }
 };
 
-document.onkeydown=function(event){
-event=event||window.event;
-if((event.keyCode===27||event.keyCode===8)&&details.style.display==="block"){
-event.preventDefault();
-closeDetails();
-}
+document.onkeydown = function(event){
+
+    event = event || window.event;
+
+    if(
+        (event.keyCode === 27 || event.keyCode === 8) &&
+        details.style.display === "block"
+    ){
+        event.preventDefault();
+        closeDetails();
+    }
 };
 
 function load(){
-var request=new XMLHttpRequest();
-request.open("GET","catalogue.json?v="+new Date().getTime(),true);
 
-request.onreadystatechange=function(){
-if(request.readyState!==4)return;
+    var request = new XMLHttpRequest();
 
-if(request.status>=200&&request.status<300){
-try{
-var data=JSON.parse(request.responseText);
-if(Object.prototype.toString.call(data)!=="[object Array]")throw new Error("Invalid catalogue");
+    request.open(
+        "GET",
+        "catalogue.json?v=" + new Date().getTime(),
+        true
+    );
 
-catalogue=data;
-status.textContent=catalogue.length+" titles loaded";
-applyFilters();
+    request.onreadystatechange = function(){
 
-}catch(error){
-status.textContent="Could not read catalogue.json.";
-}
-}else{
-status.textContent="Could not load catalogue.json.";
-}
-};
+        if(request.readyState !== 4){
+            return;
+        }
 
-request.onerror=function(){
-status.textContent="Network error loading catalogue.";
-};
+        if(request.status >= 200 && request.status < 300){
 
-request.send(null);
+            try{
+
+                var data = JSON.parse(request.responseText);
+
+                if(
+                    Object.prototype.toString.call(data) !==
+                    "[object Array]"
+                ){
+                    throw new Error("Invalid catalogue");
+                }
+
+                catalogue = data;
+
+                status.textContent =
+                    catalogue.length + " titles loaded";
+
+                applyFilters();
+
+            } catch(error){
+
+                status.textContent =
+                    "Could not read catalogue.json.";
+            }
+
+        } else {
+
+            status.textContent =
+                "Could not load catalogue.json.";
+        }
+    };
+
+    request.onerror = function(){
+
+        status.textContent =
+            "Network error loading catalogue.";
+    };
+
+    request.send(null);
 }
 
 load();
 
 })();
 </script>
+
 </body>
 </html>
