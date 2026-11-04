@@ -4,51 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cima4U TV</title>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080d18;color:#fff;font-family:Arial,sans-serif}
 header{background:#111b2d;border-bottom:3px solid #eab849;padding:18px 4%}
 .top{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
 .logo{font-size:30px;font-weight:bold;color:#eab849;margin-right:auto}
-.logo span{color:white}
+.logo span{color:#fff}
 nav{display:flex;gap:8px;flex-wrap:wrap}
 button,input{font-size:16px;padding:13px;border-radius:8px;border:1px solid #45536a}
-button{background:#1b2a42;color:white;cursor:pointer}
+button{background:#1b2a42;color:#fff;cursor:pointer}
 button:focus,button:hover,button.active{background:#eab849;color:#111;outline:3px solid #f3bd50}
-input{background:#080d18;color:white;min-width:200px}
+input{background:#080d18;color:#fff;min-width:200px}
 main{padding:25px 4%}
 h1{color:#eab849}
 #status{color:#aab6c9}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:25px}
-.card{min-height:130px;background:#142139;border:1px solid #35445d;border-radius:12px;padding:20px;color:white;text-align:left;display:flex;flex-direction:column;justify-content:center}
-.card strong{font-size:19px}
-.card small{color:#aab6c9;margin-top:10px}
-.card:focus{border:2px solid #eab849}
-#screen{display:none}
-#back{margin:15px 0}
-#detail{background:#142139;padding:20px;border-radius:12px}
+.card{min-height:135px;background:#142139;border:1px solid #35445d;border-radius:12px;padding:18px;color:#fff;text-align:left;display:flex;flex-direction:column;justify-content:center}
+.card strong{font-size:18px;line-height:1.5}
+.card small{color:#aab6c9;margin-top:10px;line-height:1.5}
+#detailScreen{display:none}
+#detail{background:#142139;padding:22px;border-radius:12px;margin-top:15px}
+#detailText{color:#c3ccda;line-height:1.7}
+#back{margin:10px 0}
+#empty{color:#aab6c9;padding:20px 0}
 footer{text-align:center;color:#77869c;padding:25px}
 @media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.grid{grid-template-columns:1fr}nav{width:100%}nav button{flex:1}form{display:flex;width:100%}form input{flex:1;min-width:0}}
+@media(max-width:500px){
+ .grid{grid-template-columns:1fr}
+ nav{width:100%}
+ nav button{flex:1}
+ form{display:flex;width:100%}
+ form input{flex:1;min-width:0}
+}
 </style>
 </head>
-
 <body>
 
 <header>
  <div class="top">
   <div class="logo">CIMA<span>4U</span></div>
-
   <nav id="nav">
    <button class="active" data-page="home">HOME</button>
    <button data-page="movies">MOVIES</button>
    <button data-page="series">SERIES</button>
    <button data-page="anime">ANIME</button>
   </nav>
-
   <form id="searchForm">
-   <input id="search" placeholder="Search titles">
+   <input id="search" placeholder="Search movies and series">
    <button type="submit">SEARCH</button>
   </form>
  </div>
@@ -56,16 +59,18 @@ footer{text-align:center;color:#77869c;padding:25px}
 
 <main>
  <section id="homeScreen">
-  <h1 id="heading">Welcome to Cima4U</h1>
-  <p id="status">Choose a category to browse.</p>
+  <h1 id="heading">Cima4U</h1>
+  <p id="status">Loading catalogue...</p>
   <div class="grid" id="grid"></div>
+  <div id="empty" style="display:none"></div>
  </section>
 
- <section id="screen">
+ <section id="detailScreen">
   <button id="back">← BACK</button>
   <div id="detail">
    <h1 id="detailTitle"></h1>
    <p id="detailText"></p>
+   <p id="playNotice"></p>
   </div>
  </section>
 </main>
@@ -75,64 +80,106 @@ footer{text-align:center;color:#77869c;padding:25px}
 <script>
 (function(){
 
-var categories=[
- {name:"Foreign Movies",type:"movies"},
- {name:"Arabic Movies",type:"movies"},
- {name:"Asian Movies",type:"movies"},
- {name:"Turkish Movies",type:"movies"},
- {name:"Indian Movies",type:"movies"},
- {name:"Foreign Series",type:"series"},
- {name:"Arabic Series",type:"series"},
- {name:"Turkish Series",type:"series"},
- {name:"Asian Series",type:"series"},
- {name:"Anime",type:"anime"},
- {name:"TV Shows",type:"series"}
-];
-
-var grid=document.getElementById("grid");
-var home=document.getElementById("homeScreen");
-var screen=document.getElementById("screen");
-var heading=document.getElementById("heading");
-var status=document.getElementById("status");
+var catalogue=[];
 var currentPage="home";
 var previousPage="home";
+var currentSearch="";
+var grid=document.getElementById("grid");
+var home=document.getElementById("homeScreen");
+var detailScreen=document.getElementById("detailScreen");
+var status=document.getElementById("status");
+var heading=document.getElementById("heading");
+var empty=document.getElementById("empty");
 
-function showCategories(page,search){
+function text(value){
+ return String(value||"").toLowerCase();
+}
+
+function getType(item){
+ var title=text(item.title);
+ var description=text(item.description);
+ var combined=title+" "+description;
+
+ if(
+  combined.indexOf("anime")!==-1||
+  combined.indexOf("أنمي")!==-1||
+  combined.indexOf("انمي")!==-1||
+  combined.indexOf("demon slayer")!==-1||
+  combined.indexOf("naruto")!==-1||
+  combined.indexOf("one piece")!==-1
+ ){
+  return "anime";
+ }
+
+ if(
+  combined.indexOf("فيلم")!==-1||
+  combined.indexOf("افلام")!==-1||
+  combined.indexOf("movie")!==-1||
+  combined.indexOf("film")!==-1
+ ){
+  return "movies";
+ }
+
+ if(
+  combined.indexOf("مسلسل")!==-1||
+  combined.indexOf("الحلقة")!==-1||
+  combined.indexOf("الموسم")!==-1||
+  combined.indexOf("episode")!==-1||
+  combined.indexOf("season")!==-1||
+  combined.indexOf("series")!==-1
+ ){
+  return "series";
+ }
+
+ return "other";
+}
+
+function showList(page,search){
 
  currentPage=page;
+ currentSearch=search||"";
+
  home.style.display="block";
- screen.style.display="none";
+ detailScreen.style.display="none";
  grid.innerHTML="";
+ empty.style.display="none";
 
  var count=0;
 
- for(var i=0;i<categories.length;i++){
+ for(var i=0;i<catalogue.length;i++){
 
-  var item=categories[i];
+  var item=catalogue[i];
+  var type=getType(item);
+  var title=item.title||"Untitled";
 
-  if(page!=="home"&&page!=="search"&&item.type!==page){
-   continue;
+  if(page!=="home"&&page!=="search"){
+   if(type!==page)continue;
   }
 
-  if(search&&item.name.toLowerCase().indexOf(search.toLowerCase())===-1){
-   continue;
+  if(search){
+   var searchable=text(title+" "+item.description);
+   if(searchable.indexOf(text(search))===-1)continue;
   }
 
   var button=document.createElement("button");
   button.className="card";
 
-  var title=document.createElement("strong");
-  title.appendChild(document.createTextNode(item.name));
+  var name=document.createElement("strong");
+  name.appendChild(document.createTextNode(title));
 
   var subtitle=document.createElement("small");
-  subtitle.appendChild(document.createTextNode("Browse "+item.name));
+  subtitle.appendChild(document.createTextNode(
+   type==="movies"?"MOVIE":
+   type==="series"?"SERIES / EPISODE":
+   type==="anime"?"ANIME":"TITLE"
+  ));
 
-  button.appendChild(title);
+  button.appendChild(name);
   button.appendChild(subtitle);
 
   button.onclick=(function(selected){
    return function(){
-    openCategory(selected);
+    openDetails(selected);
    };
   })(item);
 
@@ -140,30 +187,83 @@ function showCategories(page,search){
   count++;
  }
 
- heading.innerHTML=page==="home"?"Welcome to Cima4U":page.toUpperCase();
- status.innerHTML=count+" categories available";
+ if(page==="search"){
+  heading.innerHTML="SEARCH RESULTS";
+ }else if(page==="home"){
+  heading.innerHTML="LATEST TITLES";
+ }else{
+  heading.innerHTML=page.toUpperCase();
+ }
 
- if(!count){
-  status.innerHTML="No matching categories.";
+ status.innerHTML=count+" titles found";
+
+ if(count===0){
+  empty.style.display="block";
+  empty.innerHTML="No titles found in this section.";
  }
 }
 
-function openCategory(item){
+function openDetails(item){
 
  previousPage=currentPage;
 
  home.style.display="none";
- screen.style.display="block";
+ detailScreen.style.display="block";
 
  document.getElementById("detailTitle").innerHTML="";
  document.getElementById("detailTitle").appendChild(
-  document.createTextNode(item.name)
+  document.createTextNode(item.title||"Untitled")
  );
 
- document.getElementById("detailText").innerHTML=
- "You are viewing "+item.name+". Title listings will appear here when the catalogue is connected.";
+ document.getElementById("detailText").innerHTML="";
+ document.getElementById("detailText").appendChild(
+  document.createTextNode(
+   item.description||"No description available."
+  )
+ );
+
+ document.getElementById("playNotice").innerHTML=
+  "Playback servers are not connected to this catalogue entry yet.";
 
  document.getElementById("back").focus();
+}
+
+function loadCatalogue(){
+
+ var request=new XMLHttpRequest();
+
+ request.open("GET","catalogue.json?v="+new Date().getTime(),true);
+
+ request.onreadystatechange=function(){
+
+  if(request.readyState!==4)return;
+
+  if(request.status>=200&&request.status<300){
+
+   try{
+    var data=JSON.parse(request.responseText);
+
+    if(Object.prototype.toString.call(data)!=="[object Array]"){
+     throw new Error("Catalogue format is not an array");
+    }
+
+    catalogue=data;
+    showList("home");
+
+   }catch(error){
+    status.innerHTML="Catalogue file could not be read.";
+    empty.style.display="block";
+    empty.innerHTML="Check that catalogue.json contains a valid JSON list.";
+   }
+
+  }else{
+   status.innerHTML="Could not load catalogue.json.";
+   empty.style.display="block";
+   empty.innerHTML="Make sure catalogue.json is inside the cima4u folder.";
+  }
+ };
+
+ request.send(null);
 }
 
 document.getElementById("nav").onclick=function(e){
@@ -178,7 +278,8 @@ document.getElementById("nav").onclick=function(e){
 
  e.target.className="active";
 
- showCategories(e.target.getAttribute("data-page"));
+ document.getElementById("search").value="";
+ showList(e.target.getAttribute("data-page"));
 };
 
 document.getElementById("searchForm").onsubmit=function(e){
@@ -187,14 +288,17 @@ document.getElementById("searchForm").onsubmit=function(e){
 
  var value=document.getElementById("search").value;
 
- currentPage="search";
+ var buttons=document.getElementById("nav").getElementsByTagName("button");
 
- showCategories("search",value);
+ for(var i=0;i<buttons.length;i++){
+  buttons[i].className="";
+ }
+
+ showList("search",value);
 };
 
 document.getElementById("back").onclick=function(){
-
- showCategories(previousPage);
+ showList(previousPage,currentSearch);
 };
 
 document.onkeydown=function(e){
@@ -203,9 +307,10 @@ document.onkeydown=function(e){
 
  if(e.keyCode===8||e.keyCode===27){
 
-  if(screen.style.display==="block"){
-   showCategories(previousPage);
+  if(detailScreen.style.display==="block"){
+   showList(previousPage,currentSearch);
    e.preventDefault();
+   return;
   }
  }
 
@@ -229,21 +334,25 @@ document.onkeydown=function(e){
 
  if(index===-1){
   cards[0].focus();
+  e.preventDefault();
   return;
  }
+
+ var columns=window.innerWidth<=500?1:
+             window.innerWidth<=850?2:4;
 
  var next=index;
 
  if(e.keyCode===39)next=Math.min(index+1,cards.length-1);
  if(e.keyCode===37)next=Math.max(index-1,0);
- if(e.keyCode===40)next=Math.min(index+4,cards.length-1);
- if(e.keyCode===38)next=Math.max(index-4,0);
+ if(e.keyCode===40)next=Math.min(index+columns,cards.length-1);
+ if(e.keyCode===38)next=Math.max(index-columns,0);
 
  cards[next].focus();
  e.preventDefault();
 };
 
-showCategories("home");
+loadCatalogue();
 
 })();
 </script>
