@@ -1,0 +1,110 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background: #080b12;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.screen {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 75% 40%, #25203a 0%, transparent 55%),
+        linear-gradient(135deg, #080b12, #111522);
+}
+
+.header {
+    padding: 38px 7%;
+}
+
+.logo {
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+.logo span {
+    color: #ef233c;
+}
+
+.tagline {
+    margin-top: 9px;
+    color: #858b9b;
+    font-size: 12px;
+    letter-spacing: 3px;
+}
+
+.hero {
+    padding: 75px 9% 100px;
+    max-width: 900px;
+}
+
+.eyebrow {
+    color: #ef233c;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+h1 {
+    font-size: 52px;
+    line-height: 1.15;
+    margin: 22px 0;
+}
+
+.hero p {
+    color: #b5bac7;
+    font-size: 19px;
+    line-height: 1.6;
+    max-width: 520px;
+}
+
+.browse-button {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 19px 30px;
+    background: #ef233c;
+    border: 3px solid #ef233c;
+    border-radius: 7px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.browse-button:focus {
+    outline: 4px solid #ffffff;
+    outline-offset: 5px;
+}
+
+.arrow {
+    margin-left: 18px;
+}
+
+.status {
+    margin-top: 24px;
+    color: #858b9b;
+    font-size: 14px;
+}
+
+footer {
+    position: absolute;
+    bottom: 22px;
+    left: 7%;
+    color: #626879;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
