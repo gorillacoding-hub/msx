@@ -1,63 +1,104 @@
-
-/*
- * Cima4U Original Player
- * Samsung Tizen 4.0 / Chromium 56
- */
-
 (function () {
-    "use strict";
+  "use strict";
 
-    function getParameter(name) {
-        var query = window.location.search.substring(1);
-        var parts = query.split("&");
+  var params = new URLSearchParams(window.location.search);
 
-        for (var i = 0; i < parts.length; i++) {
-            var pair = parts[i].split("=");
+  var title = params.get("title") || "MEDIA STATION X";
+  var serversBox = document.getElementById("servers");
+  var videoFrame = document.getElementById("videoFrame");
+  var message = document.getElementById("message");
+  var backButton = document.getElementById("back");
 
-            if (decodeURIComponent(pair[0]) === name) {
-                return decodeURIComponent(
-                    (pair[1] || "").replace(/\+/g, " ")
-                );
-            }
-        }
+  document.getElementById("title").textContent = title;
 
-        return "";
+  /*
+   * Expected URL format:
+   *
+   * player.html?title=Episode
+   * &server1=https%3A%2F%2Fexample.com%2Fembed1
+   * &server2=https%3A%2F%2Fexample.com%2Fembed2
+   *
+   * Server URLs must be supplied by catalogue.json.
+   */
+
+  var servers = [];
+  var index = 1;
+
+  while (index <= 10) {
+    var url = params.get("server" + index);
+
+    if (url) {
+      servers.push({
+        name: "SERVER " + index,
+        url: url
+      });
     }
 
-    function goBack() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.href = "index.html";
-        }
+    index++;
+  }
+
+  function selectServer(server, button) {
+    var buttons = serversBox.getElementsByTagName("button");
+    var i;
+
+    for (i = 0; i < buttons.length; i++) {
+      buttons[i].className = "server";
     }
 
-    window.goBack = goBack;
+    button.className = "server active";
 
-    var episodeUrl = getParameter("episode");
-    var player = document.getElementById("player");
-    var message = document.getElementById("message");
+    message.style.display = "none";
 
-    if (!episodeUrl) {
-        message.innerHTML = "No episode URL was provided.";
-        player.style.display = "none";
-        return;
+    videoFrame.src = server.url;
+  }
+
+  function buildServers() {
+    var i;
+    var button;
+
+    serversBox.innerHTML = "";
+
+    if (!servers.length) {
+      message.style.display = "block";
+      message.textContent =
+        "No servers were found for this episode.";
+      return;
     }
 
-    if (episodeUrl.indexOf("https://") !== 0) {
-        message.innerHTML = "Invalid episode URL.";
-        player.style.display = "none";
-        return;
+    for (i = 0; i < servers.length; i++) {
+      button = document.createElement("button");
+      button.className = "server";
+      button.textContent = servers[i].name;
+
+      (function (server, currentButton) {
+        currentButton.onclick = function () {
+          selectServer(server, currentButton);
+        };
+      })(servers[i], button);
+
+      serversBox.appendChild(button);
     }
 
-    player.onload = function () {
-        message.style.display = "none";
-    };
+    selectServer(
+      servers[0],
+      serversBox.getElementsByTagName("button")[0]
+    );
+  }
 
-    player.onerror = function () {
-        message.innerHTML =
-            "The original player could not be loaded.";
-    };
+  backButton.onclick = function () {
+    videoFrame.src = "about:blank";
+    window.history.back();
+  };
 
-    player.src = episodeUrl;
+  document.addEventListener("keydown", function (event) {
+    var key = event.keyCode;
+
+    if (key === 8 || key === 461) {
+      event.preventDefault();
+      backButton.click();
+    }
+  });
+
+  buildServers();
+
 })();
