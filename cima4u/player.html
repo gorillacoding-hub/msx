@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cima4U Player</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #080d18;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+h1 { color: #eab849; }
+
+#playerFrame {
+    width: 100%;
+    height: 65vh;
+    background: black;
+    border: 2px solid #34445d;
+}
+
+#serverButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.server-button {
+    background: #192941;
+    color: white;
+    border: 2px solid #45536a;
+    border-radius: 8px;
+    padding: 15px 22px;
+    font-size: 17px;
+}
+
+.server-button.active,
+.server-button:focus {
+    background: #eab849;
+    color: black;
+    border-color: white;
+}
+
+.back {
+    margin-bottom: 15px;
+    padding: 12px 20px;
+    background: #192941;
+    color: white;
+    border: 1px solid #45536a;
+}
+</style>
+</head>
+
+<body>
+
+<button class="back" onclick="history.back()">BACK</button>
+
+<h1>Cima4U Video Player</h1>
+
+<iframe
+    id="playerFrame"
+    allowfullscreen
+    allow="autoplay; fullscreen"
+    frameborder="0">
+</iframe>
+
+<h2>Select Video Server</h2>
+
+<div id="serverButtons"></div>
+
+<script src="config.js"></script>
+<script src="player.js"></script>
+<script src="remote.js"></script>
+
+</body>
+</html>
