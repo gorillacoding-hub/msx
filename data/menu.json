@@ -1,7 +1,5 @@
 
 {
-  "name": "MOVY",
-  "version": "1.0.0",
   "headline": "MOVY",
   "menu": [
     {
@@ -9,16 +7,7 @@
       "type": "default",
       "label": "MOVY",
       "image": "https://gorillacoding-hub.github.io/msx/img/movy.png",
-      "data": {
-        "type": "pages",
-        "items": [
-          {
-            "type": "separate",
-            "title": "MOVY",
-            "action": "link:window:https://www.movy.sx/"
-          }
-        ]
-      }
+      "data": "https://gorillacoding-hub.github.io/msx/data/movy.json"
     }
   ]
 }
