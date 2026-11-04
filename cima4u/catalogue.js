@@ -1,108 +1,104 @@
 
-/*
- * Cima4U Catalogue
- * Samsung Tizen 4.0 / Chromium 56
- */
+(function () {
+    var container;
+    var status;
+    var request;
 
-var CIMA4U = {
+    function createPage() {
+        container = document.getElementById("catalogue");
 
-    site: "https://cimafu.live",
-
-    playerPage: "https://gorillacoding-hub.github.io/msx/cima4u/player.html",
-
-    categories: [
-        {
-            name: "Foreign Movies",
-            url: "/category/movies/%D8%A7%D9%81%D9%84%D8%A7%D9%85-%D8%A7%D8%AC%D9%86%D8%A8%D9%8A%D8%A9/"
-        },
-        {
-            name: "Arabic Movies",
-            url: "/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"
-        },
-        {
-            name: "Asian Movies",
-            url: "/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%A7%D8%B3%D9%8A%D9%88%D9%8A%D8%A9"
-        },
-        {
-            name: "Turkish Movies",
-            url: "/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"
-        },
-        {
-            name: "Indian Movies",
-            url: "/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D9%87%D9%86%D8%AF%D9%8A%D8%A9"
-        },
-        {
-            name: "Foreign Series",
-            url: "/?s=foreign+series"
-        },
-        {
-            name: "Arabic Series",
-            url: "/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"
-        },
-        {
-            name: "Turkish Series",
-            url: "/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"
-        },
-        {
-            name: "Asian Series",
-            url: "/?s=asian+series"
-        },
-        {
-            name: "Anime",
-            url: "/?s=anime"
-        },
-        {
-            name: "TV Shows",
-            url: "/?s=tv+shows"
-        }
-    ],
-
-    search: function(query) {
-        return this.site + "/?s=" + encodeURIComponent(query);
-    },
-
-    category: function(index) {
-        if (index < 0 || index >= this.categories.length) {
-            return this.site;
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "catalogue";
+            document.body.appendChild(container);
         }
 
-        return this.site + this.categories[index].url;
-    },
+        status = document.getElementById("catalogue-status");
 
-    openTitle: function(url) {
-        if (!url || url.indexOf(this.site + "/") !== 0) {
+        if (!status) {
+            status = document.createElement("div");
+            status.id = "catalogue-status";
+            container.parentNode.insertBefore(status, container);
+        }
+
+        status.innerHTML = "Loading Cima4U catalogue...";
+    }
+
+    function showItems(items) {
+        var i;
+        var item;
+        var link;
+        var title;
+
+        container.innerHTML = "";
+
+        if (!items || !items.length) {
+            status.innerHTML = "No catalogue entries found.";
             return;
         }
 
-        window.location.href = url;
-    },
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
 
-    openPlayer: function(servers) {
-        if (!servers || !servers.length) {
-            return;
-        }
-
-        var query = [];
-
-        for (var i = 0; i < servers.length; i++) {
-            if (!servers[i].url) {
+            if (!item.title || !item.url) {
                 continue;
             }
 
-            query.push(
-                "server" + (i + 1) + "=" +
-                encodeURIComponent(servers[i].url)
-            );
+            link = document.createElement("a");
+            link.href = item.url;
+            link.className = "catalogue-item";
 
-            query.push(
-                "name" + (i + 1) + "=" +
-                encodeURIComponent(servers[i].name || "Server " + (i + 1))
-            );
+            title = document.createElement("div");
+            title.className = "catalogue-title";
+            title.innerHTML = "";
+
+            title.appendChild(document.createTextNode(item.title));
+            link.appendChild(title);
+
+            if (item.description) {
+                var description = document.createElement("div");
+                description.className = "catalogue-description";
+                description.appendChild(
+                    document.createTextNode(item.description)
+                );
+                link.appendChild(description);
+            }
+
+            container.appendChild(link);
         }
 
-        if (query.length) {
-            window.location.href =
-                this.playerPage + "?" + query.join("&");
-        }
+        status.innerHTML = "Catalogue loaded.";
     }
-};
+
+    function loadCatalogue() {
+        request = new XMLHttpRequest();
+        request.open("GET", "catalogue.json", true);
+
+        request.onreadystatechange = function () {
+            if (request.readyState !== 4) {
+                return;
+            }
+
+            if (request.status === 200) {
+                try {
+                    showItems(JSON.parse(request.responseText));
+                } catch (error) {
+                    status.innerHTML = "Could not read catalogue.";
+                }
+            } else {
+                status.innerHTML = "Catalogue not available yet.";
+            }
+        };
+
+        request.onerror = function () {
+            status.innerHTML = "Could not connect to catalogue.";
+        };
+
+        request.send();
+    }
+
+    window.onload = function () {
+        createPage();
+        loadCatalogue();
+    };
+})();
