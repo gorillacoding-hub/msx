@@ -1,0 +1,14 @@
+{
+  "type": "menu",
+  "title": "MOVY",
+  "items": [
+    {
+      "title": "MOVY",
+      "image": "img/movy.png",
+      "action": {
+        "type": "link",
+        "url": "https://www.movy.sx/"
+      }
+    }
+  ]
+}
