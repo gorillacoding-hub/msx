@@ -1,11 +1,14 @@
 
 /*
- * Cima4U catalogue configuration
- * Compatible with older Samsung Tizen browsers.
+ * Cima4U Catalogue
+ * Samsung Tizen 4.0 / Chromium 56
  */
 
 var CIMA4U = {
+
     site: "https://cimafu.live",
+
+    playerPage: "https://gorillacoding-hub.github.io/msx/cima4u/player.html",
 
     categories: [
         {
@@ -54,15 +57,52 @@ var CIMA4U = {
         }
     ],
 
-    search: function (query) {
+    search: function(query) {
         return this.site + "/?s=" + encodeURIComponent(query);
     },
 
-    category: function (index) {
+    category: function(index) {
         if (index < 0 || index >= this.categories.length) {
             return this.site;
         }
 
         return this.site + this.categories[index].url;
+    },
+
+    openTitle: function(url) {
+        if (!url || url.indexOf(this.site + "/") !== 0) {
+            return;
+        }
+
+        window.location.href = url;
+    },
+
+    openPlayer: function(servers) {
+        if (!servers || !servers.length) {
+            return;
+        }
+
+        var query = [];
+
+        for (var i = 0; i < servers.length; i++) {
+            if (!servers[i].url) {
+                continue;
+            }
+
+            query.push(
+                "server" + (i + 1) + "=" +
+                encodeURIComponent(servers[i].url)
+            );
+
+            query.push(
+                "name" + (i + 1) + "=" +
+                encodeURIComponent(servers[i].name || "Server " + (i + 1))
+            );
+        }
+
+        if (query.length) {
+            window.location.href =
+                this.playerPage + "?" + query.join("&");
+        }
     }
 };
