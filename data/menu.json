@@ -3,11 +3,23 @@
   "headline": "MOVY",
   "menu": [
     {
-      "id": "movy",
-      "type": "default",
       "label": "MOVY",
-      "image": "https://gorillacoding-hub.github.io/msx/img/movy.png",
-      "data": "https://gorillacoding-hub.github.io/msx/data/movy.json"
+      "icon": "movie",
+      "data": {
+      "type": "pages",
+      "headline": "MOVY",
+      "pages": [
+        {
+          "items": [
+            {
+              "type": "default",
+              "layout": "0,0,12,6",
+              "label": "OPEN MOVY",
+              "action": "link:window:https://www.movy.sx/"
+            }
+          ]
+        }
+      ]
     }
-  ]
+  }
 }
