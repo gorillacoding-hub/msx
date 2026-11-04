@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080d18;color:#fff;font-family:Arial,sans-serif}
-header{background:#111b2d;padding:20px 4%;display:flex;align-items:center;gap:25px;flex-wrap:wrap;border-bottom:2px solid #dca83d}
+header{background:#111b2d;padding:20px 4%;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-bottom:2px solid #dca83d}
 .logo{font-size:30px;font-weight:bold;color:#eab849}
 .logo span{color:white}
 nav{display:flex;gap:8px;flex-wrap:wrap}
@@ -18,14 +19,12 @@ button.active,button:hover{background:#eab849;color:#111}
 input{background:#0b1423;color:white;width:210px}
 main{padding:30px 4%}
 h1{font-size:32px;color:#eab849}
-h2{font-size:23px}
 .subtitle{color:#aab6c9}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:25px}
-.card{background:#142139;border:1px solid #35445d;border-radius:12px;padding:22px;min-height:120px;text-decoration:none;color:white;display:flex;flex-direction:column;justify-content:center;transition:.15s}
+.card{background:#142139;border:1px solid #35445d;border-radius:12px;padding:22px;min-height:120px;text-decoration:none;color:white;display:flex;flex-direction:column;justify-content:center}
 .card strong{font-size:19px}
 .card small{color:#aab6c9;margin-top:10px}
-.card:focus,.card:hover{background:#263b59;border:2px solid #eab849;transform:scale(1.03)}
-.search{display:flex;gap:8px}
+.card:focus,.card:hover{background:#263b59;border:2px solid #eab849}
 .note{margin-top:30px;padding:15px;background:#142139;border-left:4px solid #eab849;color:#bdc9da;line-height:1.6}
 footer{text-align:center;color:#77869c;padding:25px}
 @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -41,7 +40,7 @@ footer{text-align:center;color:#77869c;padding:25px}
   <button onclick="show('series',this)">SERIES</button>
   <button onclick="show('anime',this)">ANIME</button>
  </nav>
- <form class="search" onsubmit="searchSite(event)">
+ <form onsubmit="searchSite(event)">
   <input id="query" placeholder="Search Cima4U">
   <button type="submit">SEARCH</button>
  </form>
@@ -49,36 +48,34 @@ footer{text-align:center;color:#77869c;padding:25px}
 
 <main>
  <h1 id="heading">Welcome to Cima4U</h1>
- <p class="subtitle">Your movies and series catalogue</p>
+ <p class="subtitle" id="subtitle">Your movies and series catalogue</p>
  <div class="grid" id="catalogue"></div>
  <div class="note">
-  Use the arrow buttons on your Samsung remote to navigate.
-  Press OK to open a category. Search opens the original Cima4U results.
+  Use your Samsung remote arrows to navigate and OK to open.
  </div>
 </main>
 <footer>Cima4U TV • Samsung Tizen</footer>
 
 <script>
 var categories=[
- {name:"Foreign Movies",group:"movies",url:"https://cimafu.live/category/movies/%D8%A7%D9%81%D9%84%D8%A7%D9%85-%D8%A7%D8%AC%D9%86%D8%A8%D9%8A%D8%A9/"},
- {name:"Arabic Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
- {name:"Asian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%A7%D8%B3%D9%8A%D9%88%D9%8A%D8%A9"},
- {name:"Turkish Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
- {name:"Indian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D9%87%D9%86%D8%AF%D9%8A%D8%A9"},
- {name:"Foreign Series",group:"series",url:"https://cimafu.live/?s=foreign+series"},
- {name:"Arabic Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
- {name:"Turkish Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
- {name:"Asian Series",group:"series",url:"https://cimafu.live/?s=asian+series"},
- {name:"Anime",group:"anime",url:"https://cimafu.live/?s=anime"},
- {name:"TV Shows",group:"series",url:"https://cimafu.live/?s=tv+shows"}
+{name:"Foreign Movies",group:"movies",url:"https://cimafu.live/category/movies/%D8%A7%D9%81%D9%84%D8%A7%D9%85-%D8%A7%D8%AC%D9%86%D8%A8%D9%8A%D8%A9/"},
+{name:"Arabic Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
+{name:"Asian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%A7%D8%B3%D9%8A%D9%88%D9%8A%D8%A9"},
+{name:"Turkish Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
+{name:"Indian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D9%87%D9%86%D8%AF%D9%8A%D8%A9"},
+{name:"Foreign Series",group:"series",url:"https://cimafu.live/?s=foreign+series"},
+{name:"Arabic Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
+{name:"Turkish Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
+{name:"Asian Series",group:"series",url:"https://cimafu.live/?s=asian+series"},
+{name:"Anime",group:"anime",url:"https://cimafu.live/?s=anime"},
+{name:"TV Shows",group:"series",url:"https://cimafu.live/?s=tv+shows"}
 ];
 
 function show(group,button){
  var grid=document.getElementById("catalogue");
- var heading=document.getElementById("heading");
  grid.innerHTML="";
- heading.innerHTML=group==="home"?"Welcome to Cima4U":group.toUpperCase();
- var count=0;
+ document.getElementById("heading").innerHTML=group==="home"?"Welcome to Cima4U":group.toUpperCase();
+ document.getElementById("subtitle").innerHTML="Browse movies, series and shows";
  for(var i=0;i<categories.length;i++){
   var item=categories[i];
   if(group==="home"||item.group===group){
@@ -86,13 +83,12 @@ function show(group,button){
    a.className="card";
    a.href=item.url;
    var strong=document.createElement("strong");
-   strong.innerHTML=item.name;
+   strong.appendChild(document.createTextNode(item.name));
    var small=document.createElement("small");
-   small.innerHTML="Browse catalogue →";
+   small.appendChild(document.createTextNode("Browse catalogue"));
    a.appendChild(strong);
    a.appendChild(small);
    grid.appendChild(a);
-   count++;
   }
  }
  if(button){
@@ -100,7 +96,6 @@ function show(group,button){
   for(var j=0;j<buttons.length;j++)buttons[j].className="";
   button.className="active";
  }
- if(count===0)grid.innerHTML="No categories found.";
 }
 
 function searchSite(event){
@@ -109,24 +104,59 @@ function searchSite(event){
  if(q)window.location.href="https://cimafu.live/?s="+encodeURIComponent(q);
 }
 
+function loadLatest(){
+ var request=new XMLHttpRequest();
+ request.open("GET","catalogue.json",true);
+ request.onreadystatechange=function(){
+  if(request.readyState!==4)return;
+  if(request.status!==200)return;
+  try{
+   var items=JSON.parse(request.responseText);
+   if(!items||!items.length)return;
+   var grid=document.getElementById("catalogue");
+   var heading=document.getElementById("heading");
+   var subtitle=document.getElementById("subtitle");
+   grid.innerHTML="";
+   heading.innerHTML="Latest Cima4U";
+   subtitle.innerHTML="Latest catalogue entries";
+   for(var i=0;i<items.length;i++){
+    if(!items[i].title||!items[i].url)continue;
+    var a=document.createElement("a");
+    a.className="card";
+    a.href=items[i].url;
+    var strong=document.createElement("strong");
+    strong.appendChild(document.createTextNode(items[i].title));
+    a.appendChild(strong);
+    if(items[i].description){
+     var small=document.createElement("small");
+     small.appendChild(document.createTextNode(items[i].description));
+     a.appendChild(small);
+    }
+    grid.appendChild(a);
+   }
+  }catch(error){}
+ };
+ request.send();
+}
+
 document.onkeydown=function(e){
  e=e||window.event;
  var key=e.keyCode;
  var links=document.getElementById("catalogue").getElementsByTagName("a");
- var active=document.activeElement;
  var index=-1;
  for(var i=0;i<links.length;i++){
-  if(links[i]===active){index=i;break;}
+  if(links[i]===document.activeElement){index=i;break;}
  }
- if(key===39||key===40){
-  if(index<links.length-1){links[index+1].focus();e.preventDefault();}
+ if((key===39||key===40)&&index<links.length-1){
+  links[index+1].focus();e.preventDefault();
  }
- if(key===37||key===38){
-  if(index>0){links[index-1].focus();e.preventDefault();}
+ if((key===37||key===38)&&index>0){
+  links[index-1].focus();e.preventDefault();
  }
 };
 
 show("home",document.querySelector("#nav button"));
+loadLatest();
 </script>
 </body>
 </html>
