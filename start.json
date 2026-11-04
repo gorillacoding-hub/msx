@@ -1,6 +1,5 @@
-
 {
   "name": "MOVY",
   "version": "1.0.0",
-  "parameter": "menu:data/menu.json"
+  "parameter": "menu:https://gorillacoding-hub.github.io/movy-msx/data/menu.json"
 }
