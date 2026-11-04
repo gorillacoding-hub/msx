@@ -3,254 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080b12">
-<title>Cima4U - Media Station X</title>
-
+<title>Cima4U TV</title>
 <style>
-* {
-    box-sizing: border-box;
-}
-
-html, body {
-    margin: 0;
-    width: 100%;
-    min-height: 100%;
-    background: #080b12;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-    min-height: 100vh;
-    overflow: hidden;
-    background:
-        radial-gradient(ellipse at 75% 20%, #263b55 0%, transparent 45%),
-        linear-gradient(135deg, #101b2a, #080b12 65%);
-}
-
-.screen {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 35px 6%;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-    border-bottom: 1px solid #354254;
-    padding-bottom: 22px;
-}
-
-.logo {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: 5px;
-    color: #fff;
-}
-
-.logo span {
-    color: #e8b95e;
-}
-
-.tagline {
-    color: #aebdce;
-    font-size: 14px;
-    letter-spacing: 3px;
-}
-
-.hero {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    max-width: 850px;
-    padding: 35px 0 55px;
-}
-
-.eyebrow {
-    color: #e8b95e;
-    font-size: 15px;
-    font-weight: bold;
-    letter-spacing: 4px;
-}
-
-h1 {
-    font-size: clamp(38px, 6vw, 68px);
-    line-height: 1.12;
-    margin: 22px 0;
-}
-
-.description {
-    max-width: 650px;
-    color: #c1ccda;
-    font-size: 21px;
-    line-height: 1.6;
-    margin: 0 0 35px;
-}
-
-.browse-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    min-width: 290px;
-    min-height: 72px;
-    padding: 18px 28px;
-    background: #e8b95e;
-    color: #111820;
-    border: 4px solid transparent;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 19px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    outline: none;
-}
-
-.browse-button:focus,
-.browse-button:active {
-    background: #fff;
-    color: #111820;
-    border-color: #e8b95e;
-    box-shadow: 0 0 0 6px rgba(232,185,94,.35);
-}
-
-.arrow {
-    font-size: 22px;
-}
-
-.status {
-    margin-top: 22px;
-    color: #9eacbd;
-    font-size: 15px;
-}
-
-footer {
-    border-top: 1px solid #354254;
-    padding-top: 18px;
-    color: #8290a1;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-align: center;
-}
-
-@media (max-width: 700px) {
-    body {
-        overflow-y: auto;
-    }
-
-    .screen {
-        padding: 24px 6%;
-    }
-
-    .header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .logo {
-        font-size: 30px;
-    }
-
-    .tagline {
-        font-size: 11px;
-    }
-
-    .hero {
-        min-height: 65vh;
-    }
-
-    .description {
-        font-size: 17px;
-    }
-
-    .browse-button {
-        min-width: 100%;
-    }
-}
+*{box-sizing:border-box}
+body{margin:0;background:#080d18;color:#fff;font-family:Arial,sans-serif}
+header{background:#111b2d;padding:20px 4%;display:flex;align-items:center;gap:25px;flex-wrap:wrap;border-bottom:2px solid #dca83d}
+.logo{font-size:30px;font-weight:bold;color:#eab849}
+.logo span{color:white}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+button,input{font-size:16px;padding:12px;border-radius:7px;border:1px solid #45536a}
+button{background:#1b2a42;color:white;cursor:pointer}
+button:focus,a:focus,input:focus{outline:3px solid #f3bd50;outline-offset:3px}
+button.active,button:hover{background:#eab849;color:#111}
+input{background:#0b1423;color:white;width:210px}
+main{padding:30px 4%}
+h1{font-size:32px;color:#eab849}
+h2{font-size:23px}
+.subtitle{color:#aab6c9}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:25px}
+.card{background:#142139;border:1px solid #35445d;border-radius:12px;padding:22px;min-height:120px;text-decoration:none;color:white;display:flex;flex-direction:column;justify-content:center;transition:.15s}
+.card strong{font-size:19px}
+.card small{color:#aab6c9;margin-top:10px}
+.card:focus,.card:hover{background:#263b59;border:2px solid #eab849;transform:scale(1.03)}
+.search{display:flex;gap:8px}
+.note{margin-top:30px;padding:15px;background:#142139;border-left:4px solid #eab849;color:#bdc9da;line-height:1.6}
+footer{text-align:center;color:#77869c;padding:25px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:450px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
+<header>
+ <div class="logo">CIMA<span>4U</span></div>
+ <nav id="nav">
+  <button class="active" onclick="show('home',this)">HOME</button>
+  <button onclick="show('movies',this)">MOVIES</button>
+  <button onclick="show('series',this)">SERIES</button>
+  <button onclick="show('anime',this)">ANIME</button>
+ </nav>
+ <form class="search" onsubmit="searchSite(event)">
+  <input id="query" placeholder="Search Cima4U">
+  <button type="submit">SEARCH</button>
+ </form>
+</header>
 
-<main class="screen">
-
-    <header class="header">
-        <div class="logo">CIMA<span>4U</span></div>
-        <div class="tagline">MOVIES · SERIES · ENTERTAINMENT</div>
-    </header>
-
-    <section class="hero">
-
-        <div class="eyebrow">YOUR ENTERTAINMENT HUB</div>
-
-        <h1>
-            Discover something<br>
-            worth watching.
-        </h1>
-
-        <p class="description">
-            Browse movies and series directly on the
-            Cima4U website.
-        </p>
-
-        <a
-            id="browse"
-            class="browse-button"
-            href="https://cimafu.live/"
-            tabindex="0"
-        >
-            BROWSE CIMA4U
-            <span class="arrow">&#9654;</span>
-        </a>
-
-        <div id="status" class="status">
-            Use the arrow buttons and press ENTER to browse.
-        </div>
-
-    </section>
-
-    <footer>
-        CIMA4U · MEDIA STATION X
-    </footer>
-
+<main>
+ <h1 id="heading">Welcome to Cima4U</h1>
+ <p class="subtitle">Your movies and series catalogue</p>
+ <div class="grid" id="catalogue"></div>
+ <div class="note">
+  Use the arrow buttons on your Samsung remote to navigate.
+  Press OK to open a category. Search opens the original Cima4U results.
+ </div>
 </main>
+<footer>Cima4U TV • Samsung Tizen</footer>
 
 <script>
-(function () {
-    "use strict";
+var categories=[
+ {name:"Foreign Movies",group:"movies",url:"https://cimafu.live/category/movies/%D8%A7%D9%81%D9%84%D8%A7%D9%85-%D8%A7%D8%AC%D9%86%D8%A8%D9%8A%D8%A9/"},
+ {name:"Arabic Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
+ {name:"Asian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%A7%D8%B3%D9%8A%D9%88%D9%8A%D8%A9"},
+ {name:"Turkish Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
+ {name:"Indian Movies",group:"movies",url:"https://cimafu.live/?s=%D8%A7%D9%81%D9%84%D8%A7%D9%85+%D9%87%D9%86%D8%AF%D9%8A%D8%A9"},
+ {name:"Foreign Series",group:"series",url:"https://cimafu.live/?s=foreign+series"},
+ {name:"Arabic Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"},
+ {name:"Turkish Series",group:"series",url:"https://cimafu.live/?s=%D9%85%D8%B3%D9%84%D8%B3%D9%84%D8%A7%D8%AA+%D8%AA%D8%B1%D9%83%D9%8A%D8%A9"},
+ {name:"Asian Series",group:"series",url:"https://cimafu.live/?s=asian+series"},
+ {name:"Anime",group:"anime",url:"https://cimafu.live/?s=anime"},
+ {name:"TV Shows",group:"series",url:"https://cimafu.live/?s=tv+shows"}
+];
 
-    var browse = document.getElementById("browse");
-    var status = document.getElementById("status");
+function show(group,button){
+ var grid=document.getElementById("catalogue");
+ var heading=document.getElementById("heading");
+ grid.innerHTML="";
+ heading.innerHTML=group==="home"?"Welcome to Cima4U":group.toUpperCase();
+ var count=0;
+ for(var i=0;i<categories.length;i++){
+  var item=categories[i];
+  if(group==="home"||item.group===group){
+   var a=document.createElement("a");
+   a.className="card";
+   a.href=item.url;
+   var strong=document.createElement("strong");
+   strong.innerHTML=item.name;
+   var small=document.createElement("small");
+   small.innerHTML="Browse catalogue →";
+   a.appendChild(strong);
+   a.appendChild(small);
+   grid.appendChild(a);
+   count++;
+  }
+ }
+ if(button){
+  var buttons=document.getElementById("nav").getElementsByTagName("button");
+  for(var j=0;j<buttons.length;j++)buttons[j].className="";
+  button.className="active";
+ }
+ if(count===0)grid.innerHTML="No categories found.";
+}
 
-    function openCima() {
-        window.location.href = "https://cimafu.live/";
-    }
+function searchSite(event){
+ event.preventDefault();
+ var q=document.getElementById("query").value;
+ if(q)window.location.href="https://cimafu.live/?s="+encodeURIComponent(q);
+}
 
-    browse.addEventListener("click", function () {
-        status.innerHTML = "Opening Cima4U...";
-    });
+document.onkeydown=function(e){
+ e=e||window.event;
+ var key=e.keyCode;
+ var links=document.getElementById("catalogue").getElementsByTagName("a");
+ var active=document.activeElement;
+ var index=-1;
+ for(var i=0;i<links.length;i++){
+  if(links[i]===active){index=i;break;}
+ }
+ if(key===39||key===40){
+  if(index<links.length-1){links[index+1].focus();e.preventDefault();}
+ }
+ if(key===37||key===38){
+  if(index>0){links[index-1].focus();e.preventDefault();}
+ }
+};
 
-    document.addEventListener("keydown", function (event) {
-        var key = event.keyCode || event.which;
-
-        if (key === 13) {
-            event.preventDefault();
-            openCima();
-        }
-    });
-
-    window.onload = function () {
-        browse.focus();
-    };
-
-})();
+show("home",document.querySelector("#nav button"));
 </script>
-
 </body>
 </html>
