@@ -3,26 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="MOVY portal for Media Station X">
-<title>MOVY — MSX Portal</title>
+<meta name="description" content="MOVY and DramaLive portal for Media Station X">
+<title>MEDIA STATION X</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#08090d;color:#fff;font-family:Arial,Helvetica,sans-serif}body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#20212a 0,#0b0c11 52%,#050507 100%)}
-main{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:3vh 3vw}.tile{width:min(78vw,1000px);height:min(70vh,560px);min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-decoration:none;color:#fff;background:linear-gradient(145deg,#242630,#111218);border:3px solid #454751;border-radius:18px;box-shadow:0 12px 45px #0009;outline:none;transition:none}.tile:focus,.tile:active{border-color:#fff;box-shadow:0 0 0 5px #ffffff25,0 12px 45px #0009}.logo{font-size:clamp(48px,12vw,130px);font-weight:900;letter-spacing:.12em;line-height:1;text-shadow:0 5px 20px #0008}.subtitle{margin-top:24px;font-size:clamp(16px,3vw,28px);letter-spacing:.25em;color:#c7c8d0}.hint{position:fixed;bottom:4vh;left:0;right:0;text-align:center;color:#858692;font-size:clamp(12px,1.8vw,18px)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:#08090d;color:#fff;font-family:Arial,Helvetica,sans-serif}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#20212a 0,#0b0c11 52%,#050507 100%)}
+main{width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:3vw;padding:3vh 3vw}
+.tile{width:44vw;height:min(70vh,560px);min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-decoration:none;color:#fff;background:linear-gradient(145deg,#242630,#111218);border:3px solid #454751;border-radius:18px;box-shadow:0 12px 45px #0009;outline:none;transition:none}
+.tile:focus,.tile:active{border-color:#fff;box-shadow:0 0 0 5px #ffffff25,0 12px 45px #0009}
+.logo{font-size:clamp(40px,8vw,110px);font-weight:900;letter-spacing:.12em;line-height:1;text-shadow:0 5px 20px #0008}
+.subtitle{margin-top:24px;font-size:clamp(14px,2.2vw,26px);letter-spacing:.18em;color:#c7c8d0}
+.hint{position:fixed;bottom:4vh;left:0;right:0;text-align:center;color:#858692;font-size:clamp(12px,1.8vw,18px)}
+@media(max-width:600px){main{flex-direction:column;gap:2vh}.tile{width:90vw;height:42vh;min-height:0}.logo{font-size:clamp(38px,12vw,70px)}}
 </style>
 </head>
 <body>
 <main>
 <a class="tile" id="movy" href="https://www.movy.sx/" tabindex="0" aria-label="Open MOVY website">
-<div class="logo">MOVY</div><div class="subtitle">PRESS ENTER TO OPEN</div>
+<div class="logo">MOVY</div>
+<div class="subtitle">PRESS ENTER TO OPEN</div>
+</a>
+<a class="tile" id="dramalive" href="https://gorillacoding-hub.github.io/msx/dramalive/" tabindex="0" aria-label="Open DramaLive page">
+<div class="logo">DRAMA</div>
+<div class="subtitle">PRESS ENTER TO OPEN</div>
 </a>
 </main>
-<div class="hint">Media Station X · MOVY</div>
-<script>
-(function(){
- var link=document.getElementById('movy');
- function openMovy(){ window.location.href='https://www.movy.sx/'; }
- link.addEventListener('keydown',function(e){var k=e.keyCode||e.which;if(k===13||k===32){e.preventDefault();openMovy();}});
-})();
-</script>
+<div class="hint">Media Station X</div>
 </body>
 </html>
