@@ -1,59 +1,71 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MOVY TV</title>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b10"><title>MOVY TV</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;background:#090b10;color:#f5f6f8;font-family:Arial,sans-serif}
-body{overflow-x:hidden}.top{height:76px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;background:#0d1119;border-bottom:1px solid #303744}
-.brand{font-size:32px;font-weight:bold;letter-spacing:5px}.brand span{font-size:16px;color:#e6b75b}
-nav{height:66px;padding:0 4%;display:flex;gap:14px;background:#0d1119}
-button{font-family:Arial,sans-serif;cursor:pointer}.navbtn,.back{background:transparent;color:#b8c0cd;border:2px solid transparent;padding:13px 20px;font-size:17px;font-weight:bold;letter-spacing:2px}
+*{box-sizing:border-box}html,body{margin:0;background:#090b10;color:#f5f6f8;font-family:Arial,Helvetica,sans-serif}body{overflow-x:hidden}
+.top{height:76px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;background:#0d1119;border-bottom:1px solid #303744}
+.brand{font-size:32px;font-weight:bold;letter-spacing:5px}.brand span{font-size:16px;color:#e6b75b}.status,.muted{color:#a5adbb;font-size:14px;letter-spacing:2px}
+nav{height:66px;padding:0 4%;display:flex;gap:12px;background:#0d1119;align-items:center;flex-wrap:wrap}
+button,input{font-family:Arial,Helvetica,sans-serif}button{cursor:pointer}
+.navbtn,.back{background:transparent;color:#b8c0cd;border:2px solid transparent;padding:13px 20px;font-size:17px;font-weight:bold;letter-spacing:2px}
 button:focus,input:focus{outline:3px solid #f2c66d;outline-offset:3px}
-main{padding:28px 4%;min-height:700px}.hidden{display:none!important}
-.hero{height:310px;padding:40px 5%;display:flex;align-items:center;background:linear-gradient(110deg,#1e2a3b,#151923 55%,#34251c);border:1px solid #3b4350;border-radius:10px}
+main{padding:28px 4%;min-height:700px}.hidden{display:none!important}.page{width:100%}
+.hero{min-height:270px;padding:34px 5%;display:flex;align-items:center;background:linear-gradient(110deg,#1e2a3b,#151923 55%,#34251c);border:1px solid #3b4350;border-radius:10px}
 .eyebrow{color:#e6b75b;font-size:13px;letter-spacing:4px;font-weight:bold}
-h1{font-size:42px;margin:12px 0}p{font-size:20px;line-height:1.45;color:#c4cad4;max-width:750px}
-.primary{background:#e6b75b;color:#171717;border:0;padding:16px 26px;font-size:16px;font-weight:bold;border-radius:4px}
-h2{font-size:22px;letter-spacing:2px;margin:30px 0 16px}
-.cards{display:flex;flex-wrap:wrap;gap:16px}.card{width:19%;min-width:175px;height:220px;text-align:left;padding:18px;display:flex;flex-direction:column;justify-content:flex-end;color:white;border:2px solid #394352;border-radius:8px;background:linear-gradient(145deg,#30445c,#171c26 70%,#4b3825)}
-.card:nth-child(2n){background:linear-gradient(145deg,#49303d,#171c26 70%,#333047)}
-.card strong{font-size:22px;line-height:1.15}.card small{font-size:15px;color:#cbd1db;margin-top:9px}
-.viewhead{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}
-#search{width:70%;height:58px;background:#171c26;color:white;border:2px solid #4a5566;border-radius:5px;font-size:22px;padding:0 16px;margin:20px 0}
-.detail{display:flex;gap:40px;padding:20px}.art{width:280px;height:390px;flex-shrink:0;border-radius:8px;background:linear-gradient(145deg,#35465d,#161b25 65%,#65472d);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:32px;font-weight:bold}
-.meta{color:#e6b75b;font-size:18px}.desc{font-size:21px;line-height:1.55;max-width:850px}
-.player{width:100%;height:0;padding-bottom:56.25%;position:relative;background:black;border:1px solid #39404d}
-iframe{position:absolute;width:100%;height:100%;border:0;background:#000}
-.note{font-size:16px;color:#aeb6c3}footer{text-align:center;color:#687181;padding:22px;font-size:12px;letter-spacing:2px}
-@media(max-width:900px){.card{width:30%;min-width:150px}.detail{display:block}.art{display:none}}
-</style></head><body>
-<div class="top"><div class="brand">MOVY <span>TV</span></div><div class="eyebrow">SAMSUNG EDITION</div></div>
-<nav><button class="navbtn" data-page="home">HOME</button><button class="navbtn" data-page="movies">MOVIES</button><button class="navbtn" data-page="searchpage">SEARCH</button></nav>
+h1{font-size:40px;margin:12px 0}h2{font-size:22px;letter-spacing:2px;margin:30px 0 16px}
+p{font-size:19px;line-height:1.45;color:#c4cad4;max-width:760px}
+.primary{background:#e6b75b;color:#171717;border:0;padding:15px 25px;font-size:16px;font-weight:bold;border-radius:4px}
+.secondary{background:#242d3b;color:#fff;border:2px solid #596477;padding:13px 20px;font-size:15px;font-weight:bold;border-radius:4px}
+.rails{display:block}.rail{margin:26px 0}.railhead{display:flex;justify-content:space-between;align-items:center}.railhead h2{margin:0 0 14px}
+.cards{display:flex;flex-wrap:nowrap;gap:14px;overflow:hidden}
+.card{width:178px;min-width:178px;height:245px;text-align:left;padding:0;display:flex;flex-direction:column;justify-content:flex-end;color:white;border:2px solid #394352;border-radius:7px;overflow:hidden;background:#171d28;position:relative}
+.poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;background:linear-gradient(145deg,#30445c,#171c26)}
+.card:after{content:"";position:absolute;left:0;right:0;bottom:0;height:105px;background:linear-gradient(transparent,rgba(0,0,0,.94))}
+.cardlabel{position:relative;z-index:2;padding:12px;font-size:17px;font-weight:bold;line-height:1.15;text-shadow:0 1px 3px #000}
+.cardmeta{position:relative;z-index:2;padding:0 12px 12px;font-size:13px;color:#e1e5eb}
+.grid{display:flex;flex-wrap:wrap;gap:15px}.grid .card{width:calc(16.66% - 13px);min-width:150px;height:235px}
+.headrow{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}
+#search{width:75%;height:58px;background:#171c26;color:white;border:2px solid #4a5566;border-radius:5px;font-size:22px;padding:0 16px;margin:20px 0}
+.detail{display:flex;gap:36px;padding:20px 1%}.art{width:260px;height:380px;flex-shrink:0;object-fit:cover;background:#202938;border-radius:8px}
+.detailcopy{max-width:850px}.detailcopy h1{font-size:42px}.meta{color:#e6b75b;font-size:18px;margin:14px 0}.desc{font-size:20px;line-height:1.5}
+.player{width:100%;height:0;padding-bottom:56.25%;position:relative;background:#000;border:1px solid #39404d}.player iframe{position:absolute;width:100%;height:100%;border:0;background:#000}
+.actions{display:flex;gap:15px;align-items:center;margin-top:16px;flex-wrap:wrap}.note{font-size:15px;color:#aeb6c3}
+.error{padding:18px;border:1px solid #744b42;background:#241a1a;color:#ffd8cc;margin:18px 0}
+footer{text-align:center;color:#687181;padding:22px;font-size:12px;letter-spacing:2px}
+@media(max-width:1000px){.grid .card{width:30%;min-width:145px}.detail{display:block}.art{display:none}.hero{min-height:240px}}
+</style></head>
+<body>
+<div class="top"><div class="brand">MOVY <span>TV</span></div><div id="status" class="status">CONNECTING…</div></div>
+<nav><button class="navbtn" data-page="home">HOME</button><button class="navbtn" data-page="movies">MOVIES</button><button class="navbtn" data-page="shows">TV SHOWS</button><button class="navbtn" data-page="searchpage">SEARCH</button></nav>
 <main>
-<section id="home" class="page"><div class="hero"><div><div class="eyebrow">MADE FOR YOUR TV</div><h1>MOVY, made simple.</h1><p>Browse with your Samsung remote. Open a title to see details and try the embedded player.</p><button class="primary" id="browse">BROWSE MOVIES</button></div></div><h2>FEATURED MOVIES</h2><div id="featured" class="cards"></div></section>
-<section id="movies" class="page hidden"><div class="viewhead"><div><div class="eyebrow">THE LIBRARY</div><h1>Movies</h1></div><span id="count" class="note"></span></div><div id="allcards" class="cards"></div></section>
-<section id="searchpage" class="page hidden"><div class="eyebrow">FIND SOMETHING TO WATCH</div><h1>Search</h1><input id="search" placeholder="Type a movie title"><div id="results" class="cards"></div></section>
+<section id="home" class="page"><div class="hero"><div><div class="eyebrow">BUILT FOR SAMSUNG TIZEN</div><h1>MOVY, made simple.</h1><p>Live catalogue, clear posters and remote-friendly navigation. Choose a title to see details and available playback.</p><button class="primary" id="browse">BROWSE MOVIES</button></div></div><div id="home-rails" class="rails"><div class="note">Loading live catalogue…</div></div></section>
+<section id="movies" class="page hidden"><div class="headrow"><div><div class="eyebrow">THE LIBRARY</div><h1>Movies</h1></div><span id="movie-count" class="muted"></span></div><div id="movie-grid" class="grid"></div><div class="actions"><button id="more-movies" class="secondary">LOAD MORE</button></div></section>
+<section id="shows" class="page hidden"><div class="eyebrow">THE LIBRARY</div><h1>TV Shows</h1><div id="show-grid" class="grid"></div><div class="actions"><button id="more-shows" class="secondary">LOAD MORE</button></div></section>
+<section id="searchpage" class="page hidden"><div class="eyebrow">FIND SOMETHING TO WATCH</div><h1>Search MOVY catalogue</h1><input id="search" type="text" placeholder="Enter a movie or show title" autocomplete="off"><div id="search-message" class="note">Type a title, then press OK.</div><div id="search-results" class="grid"></div></section>
 <section id="detail" class="page hidden"><button id="backdetail" class="back">‹ BACK</button><div id="detailcontent" class="detail"></div></section>
-<section id="playerpage" class="page hidden"><button id="backplayer" class="back">‹ BACK TO TITLE</button><div class="eyebrow">PLAYER</div><h1 id="playertitle"></h1><div class="player"><iframe id="frame" src="about:blank" allowfullscreen allow="encrypted-media; autoplay *; fullscreen *"></iframe></div><p class="note">If the player stays black, this older TV browser may not support the embed. Try the MOVY title page.</p><button class="primary" id="openmovy">OPEN MOVY TITLE PAGE</button></section>
-</main><footer>MOVY TV · LIGHTWEIGHT EDITION · SAMSUNG TIZEN</footer>
+<section id="playerpage" class="page hidden"><button id="backplayer" class="back">‹ BACK TO TITLE</button><div class="eyebrow">PLAYER</div><h1 id="playertitle"></h1><div class="player"><iframe id="frame" src="about:blank" allowfullscreen allow="encrypted-media; autoplay *; fullscreen *"></iframe></div><div class="actions"><button class="secondary" id="openmovy">OPEN ON MOVY</button><span class="note">Playback availability varies by title and region.</span></div></section>
+</main><footer>MOVY TV · LIVE CATALOGUE EDITION · SAMSUNG TIZEN</footer>
 <script>
 (function(){
-var data=[
-{id:155,title:"The Dark Knight",year:"2008",rating:"8.5",genre:"Action · Thriller · Crime",desc:"Batman raises the stakes in his war on crime, with the help of Lt. Jim Gordon and District Attorney Harvey Dent.",slug:"/movie/155"},
-{id:791523,title:"Wildwood",year:"2026",rating:"8.6",genre:"Animation · Adventure · Fantasy",desc:"Prue and Curtis are drawn into a magical forest filled with enchanted creatures as they try to rescue Prue's baby brother.",slug:"/movie/791523"},
-{id:969681,title:"Spider-Man: Brand New Day",year:"2026",rating:"8.5",genre:"Science Fiction · Action · Adventure",desc:"Peter Parker fights crime in a world that doesn't remember him, while a new threat puts the city in danger.",slug:"/movie/969681"},
-{id:1101412,title:"Fall 2: Deadpoint",year:"2026",rating:"7.3",genre:"Thriller",desc:"Two climbers become trapped thousands of feet above the ground on a perilous climb across Thailand's Mount Kwan.",slug:"/movie/1101412"},
-{id:1283515,title:"Verity",year:"2026",rating:"6.9",genre:"Mystery · Thriller",desc:"A ghostwriter uncovers autobiographical notes that may reveal a lethal conspiracy.",slug:"/movie/1283515"},
-{id:1368337,title:"The Odyssey",year:"2026",rating:"8.0",genre:"Adventure · Action · Fantasy",desc:"Odysseus, the legendary King of Ithaca, embarks on a perilous journey home following the Trojan War.",slug:"/movie/1368337"}
-],selected=null,pages=["home","movies","searchpage","detail","playerpage"];
-function byid(x){return document.getElementById(x)}
-function show(name){var i;for(i=0;i<pages.length;i++)byid(pages[i]).className="page"+(pages[i]===name?"":" hidden");}
-function makeCard(m){var b=document.createElement("button"),s=document.createElement("strong"),d=document.createElement("small");b.className="card";b.type="button";s.appendChild(document.createTextNode(m.title));d.appendChild(document.createTextNode(m.year+" · ★ "+m.rating));b.appendChild(s);b.appendChild(d);b.onclick=function(){details(m.id)};return b;}
-function render(id,list){var n=byid(id),i;while(n.firstChild)n.removeChild(n.firstChild);for(i=0;i<list.length;i++)n.appendChild(makeCard(list[i]));}
-function lookup(id){var i;for(i=0;i<data.length;i++)if(String(data[i].id)===String(id))return data[i];return null;}
-function details(id){selected=lookup(id);if(!selected)return;var root=byid("detailcontent");while(root.firstChild)root.removeChild(root.firstChild);var art=document.createElement("div"),copy=document.createElement("div"),h=document.createElement("h1"),meta=document.createElement("div"),p=document.createElement("p"),play=document.createElement("button");art.className="art";art.appendChild(document.createTextNode(selected.title));h.appendChild(document.createTextNode(selected.title));meta.className="meta";meta.appendChild(document.createTextNode(selected.year+" · ★ "+selected.rating+" · "+selected.genre));p.className="desc";p.appendChild(document.createTextNode(selected.desc));play.className="primary";play.appendChild(document.createTextNode("PLAY"));play.onclick=playTitle;copy.appendChild(h);copy.appendChild(meta);copy.appendChild(p);copy.appendChild(play);root.appendChild(art);root.appendChild(copy);show("detail");play.focus();}
-function playTitle(){if(!selected)return;byid("playertitle").innerHTML="";byid("playertitle").appendChild(document.createTextNode(selected.title));byid("frame").src="https://vidy.st/movie/"+selected.id+"?color=E6B75B";byid("openmovy").onclick=function(){window.location.href="https://www.movy.sx"+selected.slug;};show("playerpage");byid("backplayer").focus();}
-function search(){var q=byid("search").value.toLowerCase(),r=[],i;for(i=0;i<data.length;i++)if(data[i].title.toLowerCase().indexOf(q)>=0)r.push(data[i]);render("results",r);}
-function init(){render("featured",data.slice(0,5));render("allcards",data);byid("count").innerHTML=data.length+" STARTER TITLES";var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){show(this.getAttribute("data-page"));};byid("browse").onclick=function(){show("movies");};byid("backdetail").onclick=function(){show("movies");};byid("backplayer").onclick=function(){byid("frame").src="about:blank";show("detail");};byid("search").onkeyup=search;byid("search").onkeydown=function(e){if((e.keyCode||e.which)===13){var b=byid("results").getElementsByTagName("button")[0];if(b)b.focus();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(byid("playerpage").className.indexOf("hidden")<0)byid("backplayer").click();else if(byid("detail").className.indexOf("hidden")<0)byid("backdetail").click();}};show("home");}
+"use strict";
+var API="https://db.wecollege.net/3",IMG="https://image.tmdb.org/t/p/w342";
+var moviePage=1,showPage=1,selected=null,searchTimer=null,pages=["home","movies","shows","searchpage","detail","playerpage"];
+function el(id){return document.getElementById(id);}
+function showView(name){var i;for(i=0;i<pages.length;i++)el(pages[i]).className="page"+(pages[i]===name?"":" hidden");}
+function request(url,done){var x=new XMLHttpRequest();x.open("GET",url,true);x.onreadystatechange=function(){if(x.readyState===4){if(x.status>=200&&x.status<300){try{done(null,JSON.parse(x.responseText));}catch(e){done(e,null);}}else{done(new Error("HTTP "+x.status),null);}}};x.onerror=function(){done(new Error("Network/CORS request blocked"),null);};x.send(null);}
+function normalize(o,type){var d=type==="tv"?(o.first_air_date||""):(o.release_date||"");return{id:o.id,type:type,title:type==="tv"?(o.name||"Untitled"):(o.title||"Untitled"),year:d?d.substring(0,4):"",rating:o.vote_average?Number(o.vote_average).toFixed(1):"",overview:o.overview||"",poster:o.poster_path?IMG+o.poster_path:"",backdrop:o.backdrop_path?IMG+o.backdrop_path:"",slug:"/"+(type==="tv"?"tv":"movie")+"/"+o.id};}
+function makeCard(m){var b=document.createElement("button"),im=document.createElement("img"),t=document.createElement("span"),meta=document.createElement("span");b.className="card";b.type="button";im.className="poster";im.alt="";im.src=m.poster||m.backdrop||"";im.onerror=function(){this.style.display="none";};t.className="cardlabel";t.appendChild(document.createTextNode(m.title));meta.className="cardmeta";meta.appendChild(document.createTextNode((m.year||"")+(m.rating?" · ★ "+m.rating:"")));b.appendChild(im);b.appendChild(t);b.appendChild(meta);b.onclick=function(){openDetail(m);};return b;}
+function render(id,items){var n=el(id),i;while(n.firstChild)n.removeChild(n.firstChild);for(i=0;i<items.length;i++)n.appendChild(makeCard(items[i]));}
+function fetchList(path,type,cb){request(API+path,function(err,data){if(err){cb(err,[]);return;}var a=data&&data.results?data.results:[],out=[],i;for(i=0;i<a.length;i++)if(a[i]&&a[i].id)out.push(normalize(a[i],type));cb(null,out,data);});}
+function addRail(name,items){var s=document.createElement("div"),h=document.createElement("div"),title=document.createElement("h2"),row=document.createElement("div"),i;s.className="rail";h.className="railhead";title.appendChild(document.createTextNode(name));h.appendChild(title);row.className="cards";for(i=0;i<items.length;i++)row.appendChild(makeCard(items[i]));s.appendChild(h);s.appendChild(row);el("home-rails").appendChild(s);}
+function loadHome(){var root=el("home-rails");root.innerHTML="";var jobs=[["Trending Movies","/trending/movie/week?language=en&page=1","movie"],["Popular Movies","/movie/popular?language=en&page=1","movie"],["Trending TV Shows","/trending/tv/week?language=en&page=1","tv"]],left=jobs.length,failed=0,i;for(i=0;i<jobs.length;i++)(function(job){fetchList(job[1],job[2],function(err,items){if(err)failed++;else if(items.length)addRail(job[0],items);left--;if(left===0){el("status").innerHTML=failed===jobs.length?"CATALOGUE OFFLINE":"LIVE CATALOGUE";if(!root.firstChild)root.innerHTML='<div class="error">Catalogue service could not be reached from this TV browser. The browser may be blocking cross-origin requests.</div>';}});})(jobs[i]);}
+function loadGrid(type,page,append){var path=type==="movie"?"/movie/popular?language=en&page="+page:"/tv/popular?language=en&page="+page;fetchList(path,type,function(err,items){if(err){el(type==="movie"?"movie-count":"shows").innerHTML="Catalogue error: "+err.message;return;}var target=type==="movie"?"movie-grid":"show-grid",node=el(target),i;if(!append)node.innerHTML="";for(i=0;i<items.length;i++)node.appendChild(makeCard(items[i]));if(type==="movie")el("movie-count").innerHTML=items.length+" titles loaded";});}
+function openDetail(m){selected=m;var root=el("detailcontent");root.innerHTML="";var art=document.createElement("img"),copy=document.createElement("div"),h=document.createElement("h1"),meta=document.createElement("div"),desc=document.createElement("p"),play=document.createElement("button");art.className="art";art.src=m.poster||m.backdrop||"";art.onerror=function(){this.style.visibility="hidden";};h.appendChild(document.createTextNode(m.title));meta.className="meta";meta.appendChild(document.createTextNode((m.year||"Year unknown")+(m.rating?" · ★ "+m.rating:"")+(m.type==="tv"?" · TV SHOW":" · MOVIE")));desc.className="desc";desc.appendChild(document.createTextNode(m.overview||"No description available."));play.className="primary";play.appendChild(document.createTextNode("PLAY"));play.onclick=playTitle;copy.className="detailcopy";copy.appendChild(h);copy.appendChild(meta);copy.appendChild(desc);copy.appendChild(play);root.appendChild(art);root.appendChild(copy);showView("detail");play.focus();}
+function playTitle(){if(!selected)return;el("playertitle").innerHTML="";el("playertitle").appendChild(document.createTextNode(selected.title));var src=selected.type==="tv"?"https://vidy.st/tv/"+selected.id+"/1/1?color=E6B75B&episodeSelector=true&nextEpisode=true":"https://vidy.st/movie/"+selected.id+"?color=E6B75B";el("frame").src=src;el("openmovy").onclick=function(){window.location.href="https://www.movy.sx"+selected.slug;};showView("playerpage");el("backplayer").focus();}
+function runSearch(){var q=el("search").value.replace(/^\\s+|\\s+$/g,"");if(q.length<2){el("search-results").innerHTML="";el("search-message").innerHTML="Enter at least 2 characters.";return;}el("search-message").innerHTML="Searching live catalogue…";request(API+"/search/multi?query="+encodeURIComponent(q)+"&language=en&page=1",function(err,data){if(err){el("search-message").innerHTML="Search failed: "+err.message;return;}var a=data.results||[],out=[],i;for(i=0;i<a.length;i++)if(a[i].id&&(a[i].media_type==="movie"||a[i].media_type==="tv"))out.push(normalize(a[i],a[i].media_type));render("search-results",out);el("search-message").innerHTML=out.length?out.length+" results":"No results found.";});}
+function init(){var nav=document.getElementsByClassName("navbtn"),i;for(i=0;i<nav.length;i++)nav[i].onclick=function(){var p=this.getAttribute("data-page");showView(p);if(p==="movies"&&!el("movie-grid").firstChild)loadGrid("movie",moviePage,false);if(p==="shows"&&!el("show-grid").firstChild)loadGrid("tv",showPage,false);};el("browse").onclick=function(){showView("movies");loadGrid("movie",moviePage,false);};el("backdetail").onclick=function(){showView("movies");};el("backplayer").onclick=function(){el("frame").src="about:blank";showView("detail");};el("more-movies").onclick=function(){moviePage++;loadGrid("movie",moviePage,true);};el("more-shows").onclick=function(){showPage++;loadGrid("tv",showPage,true);};el("search").onkeyup=function(){if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,450);};el("search").onkeydown=function(e){if((e.keyCode||e.which)===13){if(searchTimer)clearTimeout(searchTimer);runSearch();}};document.onkeydown=function(e){var k=e.keyCode||e.which;if(k===8||k===27){if(el("playerpage").className.indexOf("hidden")<0)el("backplayer").click();else if(el("detail").className.indexOf("hidden")<0)el("backdetail").click();}};showView("home");loadHome();}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script></body></html>
