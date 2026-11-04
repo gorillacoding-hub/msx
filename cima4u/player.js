@@ -1,27 +1,32 @@
 
 /*
  * Cima4U Player Controller
- * Samsung Tizen 4.0 compatible
+ * Samsung Tizen 4.0 / Chromium 56 compatible
  */
 
 var CIMA_PLAYER = {
 
     currentServer: 0,
 
-    servers: CIMA_CONFIG.PLAYER_SERVERS,
+    servers: (window.CIMA_CONFIG &&
+              window.CIMA_CONFIG.PLAYER_SERVERS)
+              ? window.CIMA_CONFIG.PLAYER_SERVERS : [],
 
     open: function(index) {
         if (index < 0 || index >= this.servers.length) {
             return;
         }
 
-        this.currentServer = index;
-
+        var server = this.servers[index];
         var frame = document.getElementById("playerFrame");
 
-        if (frame) {
-            frame.src = this.servers[index].url;
+        if (!server || !server.url || !frame) {
+            return;
         }
+
+        this.currentServer = index;
+
+        frame.src = server.url;
 
         this.updateButtons();
     },
@@ -47,23 +52,38 @@ var CIMA_PLAYER = {
 
         container.innerHTML = "";
 
+        if (!this.servers.length) {
+            container.innerHTML = "No video servers configured.";
+            return;
+        }
+
         for (var i = 0; i < this.servers.length; i++) {
             var button = document.createElement("button");
 
             button.className = "server-button";
             button.innerHTML = this.servers[i].name;
-
             button.setAttribute("data-index", i);
 
             button.onclick = function() {
-                CIMA_PLAYER.open(
-                    parseInt(this.getAttribute("data-index"), 10)
+                var index = parseInt(
+                    this.getAttribute("data-index"),
+                    10
                 );
+
+                CIMA_PLAYER.open(index);
             };
 
             container.appendChild(button);
         }
 
-        this.updateButtons();
+        /* Automatically load the first server */
+        this.open(0);
+
+        /* Put remote focus on the first server button */
+        var firstButton = container.getElementsByTagName("button")[0];
+
+        if (firstButton) {
+            firstButton.focus();
+        }
     }
 };
