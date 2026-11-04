@@ -1,3 +1,6 @@
+
 {
-  "menu": "data/menu.json"
+  "name": "MOVY",
+  "version": "1.0.0",
+  "parameter": "menu:data/menu.json"
 }
