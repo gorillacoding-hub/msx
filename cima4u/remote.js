@@ -9,23 +9,36 @@ var CIMA_REMOTE = {
     focusIndex: 0,
 
     init: function() {
-        document.addEventListener("keydown", this.handle.bind(this));
+        document.addEventListener(
+            "keydown",
+            this.handle.bind(this),
+            false
+        );
     },
 
     handle: function(event) {
         var key = event.keyCode;
         var buttons = document.getElementsByClassName("server-button");
 
+        if (key === 8 || key === 27) {
+            history.back();
+            event.preventDefault();
+            return;
+        }
+
         if (!buttons.length) {
             return;
         }
 
-        if (key === 37) {
+        if (key === 37 || key === 38) {
             this.focusIndex--;
-        } else if (key === 39) {
+        } else if (key === 39 || key === 40) {
             this.focusIndex++;
         } else if (key === 13) {
-            buttons[this.focusIndex].click();
+            if (buttons[this.focusIndex]) {
+                buttons[this.focusIndex].click();
+            }
+
             event.preventDefault();
             return;
         } else {
@@ -33,14 +46,17 @@ var CIMA_REMOTE = {
         }
 
         if (this.focusIndex < 0) {
-            this.focusIndex = 0;
-        }
-
-        if (this.focusIndex >= buttons.length) {
             this.focusIndex = buttons.length - 1;
         }
 
-        buttons[this.focusIndex].focus();
+        if (this.focusIndex >= buttons.length) {
+            this.focusIndex = 0;
+        }
+
+        if (buttons[this.focusIndex]) {
+            buttons[this.focusIndex].focus();
+        }
+
         event.preventDefault();
     }
 };
