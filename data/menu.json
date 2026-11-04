@@ -1,11 +1,10 @@
-
 {
   "headline": "MOVY",
   "menu": [
     {
       "id": "movy",
       "type": "default",
-      "label": "MOVY",
+      "label": "MOVY TV",
       "icon": "movie",
       "data": {
         "type": "pages",
@@ -16,8 +15,8 @@
               {
                 "type": "default",
                 "layout": "0,0,12,6",
-                "label": "MOVY",
-                "action": "link:https://www.movy.sx/"
+                "label": "OPEN MOVY TV",
+                "action": "link:https://gorillacoding-hub.github.io/msx/app/"
               }
             ]
           }
