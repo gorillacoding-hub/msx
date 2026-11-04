@@ -2,20 +2,20 @@ import json
 import re
 import time
 import urllib.request
-import urllib.error
 import xml.etree.ElementTree as ET
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
 
-BASE_URL = "https://cimafu.live"
-FEED_URL = BASE_URL + "/feed/"
+BASE = "https://cimafu.live"
+FEED = BASE + "/feed/"
 OUTPUT = Path(__file__).parent / "catalogue.json"
 
-MAX_CATEGORY_PAGES = 8
 MAX_CATEGORIES = 40
-REQUEST_DELAY = 0.4
+MAX_PAGES = 8
+MAX_DETAILS = 300
+DELAY = 0.35
 
 HEADERS = {
     "User-Agent": (
@@ -27,172 +27,153 @@ HEADERS = {
 
 def clean(value):
     value = re.sub(r"<[^>]*>", " ", value or "")
-    value = unescape(value)
-    return re.sub(r"\s+", " ", value).strip()
+    return re.sub(r"\s+", " ", unescape(value)).strip()
 
 
 def fetch(url):
-    request = urllib.request.Request(url, headers=HEADERS)
-
     try:
-        with urllib.request.urlopen(request, timeout=35) as response:
-            return response.read()
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=30) as response:
+            return response.read().decode("utf-8", errors="replace")
     except Exception as error:
-        print("Could not fetch:", url, "-", error)
-        return None
+        print("Fetch failed:", url, error)
+        return ""
 
 
-def normalize_url(url):
-    url = urljoin(BASE_URL, url)
+def local_url(url):
+    url = urljoin(BASE, url)
     parsed = urlparse(url)
 
-    if parsed.netloc.lower() not in (
-        "cimafu.live",
-        "www.cimafu.live"
-    ):
+    if parsed.scheme not in ("http", "https"):
+        return ""
+
+    if parsed.netloc.lower() not in ("cimafu.live", "www.cimafu.live"):
         return ""
 
     return urlunparse((
-        "https",
-        "cimafu.live",
-        parsed.path.rstrip("/") + "/",
-        "",
-        "",
-        ""
+        "https", "cimafu.live", parsed.path, "", "", ""
     ))
 
 
 def detect_type(title, category=""):
-    text = (title + " " + category).lower()
+    value = (title + " " + category).lower()
 
-    anime_words = [
-        "anime", "انمي", "أنمي",
-        "كرتون", "cartoon",
-        "demon slayer", "naruto",
-        "one piece", "bleach"
-    ]
-
-    if any(word in text for word in anime_words):
+    if any(x in value for x in (
+        "anime", "انمي", "أنمي", "naruto",
+        "demon slayer", "one piece", "bleach"
+    )):
         return "anime"
 
-    series_words = [
-        "series", "مسلسل", "مسلسلات",
-        "episode", "الحلقة",
-        "season", "الموسم",
-        "تركية", "كورية",
-        "اسيوية", "آسيوية"
-    ]
-
-    if any(word in text for word in series_words):
+    if any(x in value for x in (
+        "مسلسل", "الحلقة", "الموسم",
+        "episode", "season", "series"
+    )):
         return "series"
 
     return "movie"
 
 
-class PageParser(HTMLParser):
+class Parser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
         self.links = []
-        self.current_link = None
-        self.current_text = []
-        self.current_depth = 0
+        self.servers = []
+        self.images = []
+        self.categories = []
+        self.current = None
+        self.depth = 0
+        self.text_parts = []
 
     def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
+        a = dict(attrs)
 
-        if tag == "a" and attrs.get("href"):
-            if self.current_link is not None:
+        if tag == "a" and a.get("href"):
+            if self.current:
                 self.finish_link()
 
-            self.current_link = attrs.get("href")
-            self.current_text = []
-            self.current_depth = 1
+            self.current = a["href"]
+            self.text_parts = []
+            self.depth = 1
 
-        elif self.current_link is not None:
-            if tag not in ("img", "br", "hr", "input"):
-                self.current_depth += 1
+        elif self.current and tag not in (
+            "img", "br", "hr", "input", "source"
+        ):
+            self.depth += 1
 
-            if tag == "img" and attrs.get("alt"):
-                self.current_text.append(attrs.get("alt"))
+        if tag == "img":
+            src = a.get("data-src") or a.get("data-lazy-src") or a.get("src")
+            if src:
+                self.images.append(src)
+
+        for key in ("data-server", "data-url", "data-embed"):
+            value = a.get(key)
+            if value:
+                self.servers.append(value)
+
+        if tag == "iframe" and a.get("src"):
+            self.servers.append(a["src"])
 
     def handle_data(self, data):
-        if self.current_link is not None:
-            self.current_text.append(data)
+        if self.current:
+            self.text_parts.append(data)
 
     def handle_endtag(self, tag):
-        if self.current_link is None:
+        if self.current is None:
             return
 
         if tag == "a":
             self.finish_link()
-        elif tag not in ("br", "hr", "img", "input"):
-            self.current_depth -= 1
-            if self.current_depth <= 0:
+        elif tag not in ("img", "br", "hr", "input", "source"):
+            self.depth -= 1
+            if self.depth <= 0:
                 self.finish_link()
 
     def finish_link(self):
-        if self.current_link is not None:
+        if self.current:
             self.links.append({
-                "url": self.current_link,
-                "text": clean(" ".join(self.current_text))
+                "url": self.current,
+                "title": clean(" ".join(self.text_parts))
             })
 
-        self.current_link = None
-        self.current_text = []
-        self.current_depth = 0
+        self.current = None
+        self.text_parts = []
+        self.depth = 0
 
 
-def is_category_url(url):
+def parse(html):
+    parser = Parser()
+    parser.feed(html)
+    return parser
+
+
+def is_category(url):
     path = urlparse(url).path.lower()
-
-    return (
-        "/category/" in path
-        or "/genre/" in path
-        or "/type/" in path
-    )
+    return "/category/" in path or "/genre/" in path
 
 
-def is_post_url(url):
+def is_post(url):
     path = urlparse(url).path.lower()
 
     if not path or path == "/":
         return False
 
-    excluded = [
-        "/category/",
-        "/genre/",
-        "/type/",
-        "/tag/",
-        "/author/",
-        "/page/",
-        "/wp-",
-        "/feed/",
-        "/search/",
-        "/privacy",
-        "/contact",
-        "/about"
-    ]
+    blocked = (
+        "/category/", "/tag/", "/author/",
+        "/page/", "/feed/", "/wp-",
+        "/search/", "/privacy", "/contact"
+    )
 
-    if any(part in path for part in excluded):
-        return False
-
-    if path.endswith((".jpg", ".jpeg", ".png", ".webp", ".css", ".js")):
+    if any(x in path for x in blocked):
         return False
 
     return True
 
 
-def parse_page(html):
-    parser = PageParser()
-    parser.feed(html.decode("utf-8", errors="replace"))
-    return parser.links
-
-
-def add_item(items, seen, title, url, description="", category=""):
+def add_title(items, seen, title, url, category=""):
+    url = local_url(url)
     title = clean(title)
-    url = normalize_url(url)
 
-    if not title or not url or not is_post_url(url):
+    if not url or not title or not is_post(url):
         return
 
     if url in seen:
@@ -203,61 +184,17 @@ def add_item(items, seen, title, url, description="", category=""):
     items.append({
         "title": title,
         "url": url,
-        "description": clean(description)[:500],
+        "description": "",
         "type": detect_type(title, category),
-        "category": clean(category)
+        "category": category,
+        "poster": "",
+        "servers": []
     })
 
 
-def get_categories(home_html):
-    categories = {}
-
-    for link in parse_page(home_html):
-        url = normalize_url(link["url"])
-        name = clean(link["text"])
-
-        if not url or not name:
-            continue
-
-        if is_category_url(url):
-            categories[url] = name
-
-    return categories
-
-
-def scrape_listing(url, category, items, seen):
-    html = fetch(url)
-
-    if not html:
-        return 0
-
-    links = parse_page(html)
-    before = len(items)
-
-    for link in links:
-        post_url = normalize_url(link["url"])
-        title = link["text"]
-
-        if not post_url or not title:
-            continue
-
-        if is_post_url(post_url):
-            add_item(
-                items,
-                seen,
-                title,
-                post_url,
-                "",
-                category
-            )
-
-    return len(items) - before
-
-
-def scrape_feed(items, seen):
+def collect_feed(items, seen):
     print("Reading RSS feed...")
-
-    data = fetch(FEED_URL)
+    data = fetch(FEED)
 
     if not data:
         return
@@ -265,111 +202,198 @@ def scrape_feed(items, seen):
     try:
         root = ET.fromstring(data)
     except ET.ParseError:
-        print("RSS feed could not be parsed.")
+        print("RSS feed parsing failed.")
         return
 
     for entry in root.findall(".//item"):
-        title = entry.findtext("title", default="")
-        link = entry.findtext("link", default="")
-        description = entry.findtext("description", default="")
-
-        add_item(
+        add_title(
             items,
             seen,
-            title,
-            link,
-            description,
-            ""
+            entry.findtext("title", ""),
+            entry.findtext("link", "")
         )
+
+
+def collect_categories(home):
+    found = {}
+
+    for link in parse(home).links:
+        url = local_url(link["url"])
+        name = clean(link["title"])
+
+        if url and name and is_category(url):
+            found[url] = name
+
+    return list(found.items())[:MAX_CATEGORIES]
+
+
+def collect_listing(url, category, items, seen):
+    html = fetch(url)
+
+    if not html:
+        return 0
+
+    before = len(items)
+    parser = parse(html)
+
+    for link in parser.links:
+        post_url = local_url(link["url"])
+
+        if post_url and link["title"] and is_post(post_url):
+            add_title(
+                items,
+                seen,
+                link["title"],
+                post_url,
+                category
+            )
+
+    return len(items) - before
+
+
+def extract_details(item):
+    html = fetch(item["url"])
+
+    if not html:
+        return
+
+    parser = parse(html)
+
+    # Extract description.
+    description = re.search(
+        r'<meta[^>]+(?:name=["\']description["\']|'
+        r'property=["\']og:description["\'])'
+        r'[^>]+content=["\']([^"\']+)',
+        html,
+        re.I
+    )
+
+    if description:
+        item["description"] = clean(description.group(1))[:1000]
+
+    # Extract poster.
+    poster = re.search(
+        r'<meta[^>]+property=["\']og:image["\']'
+        r'[^>]+content=["\']([^"\']+)',
+        html,
+        re.I
+    )
+
+    if poster:
+        item["poster"] = urljoin(item["url"], poster.group(1))
+    elif parser.images:
+        item["poster"] = urljoin(item["url"], parser.images[0])
+
+    # Extract embedded server URLs.
+    servers = []
+
+    for value in parser.servers:
+        value = unescape(value).strip()
+
+        if value.startswith("//"):
+            value = "https:" + value
+
+        if value.startswith("https://"):
+            if value not in servers:
+                servers.append(value)
+
+    # Extract server URLs from common server-list markup.
+    server_block = re.search(
+        r'<(?:ul|div)[^>]*(?:server_list|servers-list|'
+        r'player-list)[^>]*>(.*?)</(?:ul|div)>',
+        html,
+        re.I | re.S
+    )
+
+    if server_block:
+        block = server_block.group(1)
+
+        for match in re.findall(
+            r'(?:data-server|data-url|data-embed|src)\s*=\s*'
+            r'["\']([^"\']+)["\']',
+            block,
+            re.I
+        ):
+            value = unescape(match).strip()
+
+            if value.startswith("//"):
+                value = "https:" + value
+
+            if value.startswith("https://") and value not in servers:
+                servers.append(value)
+
+    item["servers"] = servers
 
 
 def main():
     items = []
     seen = set()
 
-    print("Fetching Cima4U homepage...")
-
-    home = fetch(BASE_URL + "/")
+    print("Downloading homepage...")
+    home = fetch(BASE + "/")
 
     if not home:
-        raise RuntimeError(
-            "Could not download Cima4U homepage. "
-            "Keeping the existing catalogue."
-        )
+        raise RuntimeError("Homepage unavailable. Catalogue not replaced.")
 
-    categories = get_categories(home)
+    for link in parse(home).links:
+        url = local_url(link["url"])
 
-    print("Categories discovered:", len(categories))
+        if url and link["title"] and is_post(url):
+            add_title(items, seen, link["title"], url)
 
-    # Collect titles from the homepage.
-    for link in parse_page(home):
-        url = normalize_url(link["url"])
+    categories = collect_categories(home)
+    print("Categories found:", len(categories))
 
-        if url and is_post_url(url) and link["text"]:
-            add_item(
-                items,
-                seen,
-                link["text"],
-                url
-            )
+    for index, pair in enumerate(categories, 1):
+        category_url, category_name = pair
+        print("Category", index, ":", category_name)
 
-    # Collect titles from category pages.
-    category_list = list(categories.items())[:MAX_CATEGORIES]
-
-    for index, (category_url, category_name) in enumerate(
-        category_list,
-        start=1
-    ):
-        print(
-            "[" + str(index) + "/" + str(len(category_list)) + "]",
-            category_name
-        )
-
-        for page_number in range(1, MAX_CATEGORY_PAGES + 1):
-            if page_number == 1:
+        for page in range(1, MAX_PAGES + 1):
+            if page == 1:
                 page_url = category_url
             else:
                 page_url = (
                     category_url.rstrip("/")
-                    + "/page/"
-                    + str(page_number)
-                    + "/"
+                    + "/page/" + str(page) + "/"
                 )
 
-            count = scrape_listing(
-                page_url,
-                category_name,
-                items,
-                seen
+            count = collect_listing(
+                page_url, category_name, items, seen
             )
 
-            if page_number > 1 and count == 0:
+            if page > 1 and count == 0:
                 break
 
-            time.sleep(REQUEST_DELAY)
+            time.sleep(DELAY)
 
-    # Import additional entries from RSS.
-    scrape_feed(items, seen)
+    collect_feed(items, seen)
 
     if not items:
-        raise RuntimeError(
-            "No titles were collected. "
-            "The existing catalogue was not replaced."
+        raise RuntimeError("No titles collected. Existing catalogue preserved.")
+
+    print("Titles collected:", len(items))
+    print("Extracting title details and servers...")
+
+    for index, item in enumerate(items[:MAX_DETAILS], 1):
+        print(
+            "Details", index, "/", min(len(items), MAX_DETAILS),
+            "-", item["title"]
         )
 
-    # Save only after successful collection.
+        extract_details(item)
+        time.sleep(DELAY)
+
+    # Preserve entries beyond the detail-fetch limit.
     OUTPUT.write_text(
         json.dumps(items, ensure_ascii=False, indent=2),
         encoding="utf-8"
     )
 
-    print("")
-    print("Catalogue successfully saved.")
+    print("Catalogue saved:", OUTPUT)
     print("Total titles:", len(items))
-    print("Movies:", sum(1 for x in items if x["type"] == "movie"))
-    print("Series:", sum(1 for x in items if x["type"] == "series"))
-    print("Anime:", sum(1 for x in items if x["type"] == "anime"))
-    print("Saved to:", OUTPUT)
+    print("Titles with servers:", sum(
+        1 for item in items if item["servers"]
+    ))
 
 
 if __name__ == "__main__":
