@@ -3,32 +3,235 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="MOVY and DramaLive portal for Media Station X">
+<meta name="description" content="MOVY, DramaLive and Cima4U portal for Media Station X">
 <title>MEDIA STATION X</title>
+
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:#08090d;color:#fff;font-family:Arial,Helvetica,sans-serif}
-body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#20212a 0,#0b0c11 52%,#050507 100%)}
-main{width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:3vw;padding:3vh 3vw}
-.tile{width:44vw;height:min(70vh,560px);min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-decoration:none;color:#fff;background:linear-gradient(145deg,#242630,#111218);border:3px solid #454751;border-radius:18px;box-shadow:0 12px 45px #0009;outline:none;transition:none}
-.tile:focus,.tile:active{border-color:#fff;box-shadow:0 0 0 5px #ffffff25,0 12px 45px #0009}
-.logo{font-size:clamp(40px,8vw,110px);font-weight:900;letter-spacing:.12em;line-height:1;text-shadow:0 5px 20px #0008}
-.subtitle{margin-top:24px;font-size:clamp(14px,2.2vw,26px);letter-spacing:.18em;color:#c7c8d0}
-.hint{position:fixed;bottom:4vh;left:0;right:0;text-align:center;color:#858692;font-size:clamp(12px,1.8vw,18px)}
-@media(max-width:600px){main{flex-direction:column;gap:2vh}.tile{width:90vw;height:42vh;min-height:0}.logo{font-size:clamp(38px,12vw,70px)}}
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #08090d;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at center,
+      #20212a 0,
+      #0b0c11 52%,
+      #050507 100%
+    );
+}
+
+main {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  padding: 4vh 3vw;
+}
+
+.tile {
+  flex: 1;
+  max-width: 520px;
+  height: min(65vh, 500px);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(145deg, #242630, #111218);
+  border: 3px solid #454751;
+  border-radius: 18px;
+  box-shadow: 0 12px 45px #0009;
+  outline: none;
+  transition: none;
+}
+
+.tile:focus,
+.tile:active {
+  border-color: #e6b75b;
+  box-shadow:
+    0 0 0 5px #e6b75b35,
+    0 12px 45px #0009;
+}
+
+.logo {
+  font-size: clamp(32px, 5vw, 75px);
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 5px 20px #0008;
+}
+
+.subtitle {
+  margin-top: 24px;
+  font-size: clamp(12px, 1.5vw, 20px);
+  letter-spacing: .12em;
+  color: #c7c8d0;
+  text-align: center;
+}
+
+.hint {
+  position: fixed;
+  bottom: 4vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #858692;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 700px) {
+  body {
+    overflow-y: auto;
+  }
+
+  main {
+    min-height: 100vh;
+    flex-direction: column;
+    gap: 15px;
+    padding: 25px 5vw 70px;
+  }
+
+  .tile {
+    width: 90vw;
+    flex: none;
+    height: 26vh;
+    min-height: 150px;
+  }
+
+  .logo {
+    font-size: 42px;
+  }
+
+  .subtitle {
+    margin-top: 14px;
+  }
+
+  .hint {
+    bottom: 12px;
+  }
+}
 </style>
 </head>
+
 <body>
+
 <main>
-<a class="tile" id="movy" href="https://www.movy.sx/" tabindex="0" aria-label="Open MOVY website">
-<div class="logo">MOVY</div>
-<div class="subtitle">PRESS ENTER TO OPEN</div>
-</a>
-<a class="tile" id="dramalive" href="https://gorillacoding-hub.github.io/msx/dramalive/" tabindex="0" aria-label="Open DramaLive page">
-<div class="logo">DRAMA</div>
-<div class="subtitle">PRESS ENTER TO OPEN</div>
-</a>
+
+  <a
+    class="tile"
+    id="movy"
+    href="https://www.movy.sx/"
+    tabindex="0"
+    aria-label="Open MOVY website"
+  >
+    <div class="logo">MOVY</div>
+    <div class="subtitle">PRESS ENTER TO OPEN</div>
+  </a>
+
+  <a
+    class="tile"
+    id="dramalive"
+    href="https://gorillacoding-hub.github.io/msx/dramalive/"
+    tabindex="0"
+    aria-label="Open DramaLive"
+  >
+    <div class="logo">DRAMA</div>
+    <div class="subtitle">PRESS ENTER TO OPEN</div>
+  </a>
+
+  <a
+    class="tile"
+    id="cima4u"
+    href="https://gorillacoding-hub.github.io/msx/cima4u/"
+    tabindex="0"
+    aria-label="Open Cima4U"
+  >
+    <div class="logo">CIMA4U</div>
+    <div class="subtitle">PRESS ENTER TO OPEN</div>
+  </a>
+
 </main>
-<div class="hint">Media Station X</div>
+
+<div class="hint">MEDIA STATION X</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var tiles = [
+    document.getElementById("movy"),
+    document.getElementById("dramalive"),
+    document.getElementById("cima4u")
+  ];
+
+  var index = 0;
+
+  function focusTile() {
+    if (tiles[index]) {
+      tiles[index].focus();
+    }
+  }
+
+  document.addEventListener("keydown", function (event) {
+    var key = event.keyCode || event.which;
+
+    if (key === 37 || key === 38) {
+      event.preventDefault();
+      index--;
+      if (index < 0) {
+        index = tiles.length - 1;
+      }
+      focusTile();
+    }
+
+    if (key === 39 || key === 40) {
+      event.preventDefault();
+      index++;
+      if (index >= tiles.length) {
+        index = 0;
+      }
+      focusTile();
+    }
+
+    if (key === 13) {
+      if (tiles[index]) {
+        event.preventDefault();
+        window.location.href = tiles[index].href;
+      }
+    }
+  });
+
+  for (var i = 0; i < tiles.length; i++) {
+    (function (position) {
+      tiles[position].addEventListener("focus", function () {
+        index = position;
+      });
+    })(i);
+  }
+
+  focusTile();
+})();
+</script>
+
 </body>
-</html>
+  </html>
