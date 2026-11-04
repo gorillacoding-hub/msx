@@ -1,14 +1,18 @@
 
 {
-  "type": "menu",
-  "title": "MOVY",
-  "items": [
+  "headline": "MOVY",
+  "menu": [
     {
-      "title": "MOVY",
-      "image": "img/movy.png",
-      "action": {
-        "type": "link",
-        "url": "https://www.movy.sx/"
+      "label": "MOVY",
+      "icon": "movie",
+      "data": {
+        "type": "pages",
+        "items": [
+          {
+            "title": "MOVY",
+            "action": "link:https://www.movy.sx/"
+          }
+        ]
       }
     }
   ]
