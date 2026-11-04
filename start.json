@@ -1,5 +1,6 @@
+
 {
   "name": "MOVY",
   "version": "1.0.0",
-  "parameter": "menu:https://gorillacoding-hub.github.io/movy-msx/data/menu.json"
+  "parameter": "redirect:https://gorillacoding-hub.github.io/movy-msx/start.json"
 }
