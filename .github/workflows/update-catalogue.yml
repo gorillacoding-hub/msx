@@ -4,9 +4,20 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "cima4u/update_catalogue.py"
+      - "cima4u/test_update_catalogue.py"
+      - ".github/workflows/update-catalogue.yml"
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-cima4u-catalogue
+  cancel-in-progress: false
 
 jobs:
   update-catalogue:
@@ -26,10 +37,13 @@ jobs:
       - name: Check Python
         run: python --version
 
+      - name: Test Cima4U watch-page parser
+        run: python -m unittest discover -s cima4u -p "test_*.py" -v
+
       - name: Generate catalogue
         run: python cima4u/update_catalogue.py
 
-      - name: Validate catalogue
+      - name: Validate catalogue and playable servers
         run: |
           python - <<'PY'
           import json
@@ -40,48 +54,66 @@ jobs:
 
           if not os.path.isfile(path):
               sys.exit("ERROR: catalogue.json was not created")
-
           if os.path.getsize(path) == 0:
               sys.exit("ERROR: catalogue.json is empty")
 
           try:
               with open(path, "r", encoding="utf-8") as f:
                   data = json.load(f)
-          except Exception as e:
-              sys.exit("ERROR: Invalid JSON: " + str(e))
+          except Exception as error:
+              sys.exit("ERROR: Invalid JSON: " + str(error))
 
-          if not isinstance(data, list):
-              sys.exit("ERROR: Catalogue must be a JSON list")
+          if not isinstance(data, list) or not data:
+              sys.exit("ERROR: Catalogue must be a non-empty JSON list")
 
-          if len(data) == 0:
-              sys.exit("ERROR: Catalogue contains zero titles")
+          seen = set()
+          server_count = 0
+          for index, item in enumerate(data):
+              if not isinstance(item, dict):
+                  sys.exit("ERROR: Catalogue entry is not an object at index " + str(index))
+              if not item.get("title") or not item.get("url"):
+                  sys.exit("ERROR: Missing title or URL at index " + str(index))
+              if item["url"] in seen:
+                  sys.exit("ERROR: Duplicate title URL: " + item["url"])
+              seen.add(item["url"])
+
+              servers = item.get("servers", [])
+              if not isinstance(servers, list):
+                  sys.exit("ERROR: Servers must be a list at index " + str(index))
+              for server in servers:
+                  value = server if isinstance(server, str) else server.get("url", "") if isinstance(server, dict) else ""
+                  if value.startswith("https://") or value.startswith("http://"):
+                      server_count += 1
+
+          if server_count == 0:
+              sys.exit("ERROR: Catalogue has zero playable servers. Check Cima4U /watch/ extraction; the previous catalogue was not published.")
 
           print("VALID catalogue:", len(data), "titles")
+          print("VALID playable server URLs:", server_count)
           PY
 
       - name: Commit and push catalogue
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add cima4u/catalogue.json
-
           if ! git diff --cached --quiet; then
             git commit -m "Update Cima4U catalogue"
           fi
-
           git push origin main
 
-      - name: Verify catalogue after update
+      - name: Verify committed catalogue
         run: |
           python - <<'PY'
           import json
-
           with open("cima4u/catalogue.json", "r", encoding="utf-8") as f:
               data = json.load(f)
-
-          if not isinstance(data, list) or not data:
-              raise SystemExit("ERROR: Published catalogue is invalid or empty")
-
-          print("SUCCESS: Catalogue contains", len(data), "titles")
+          server_count = sum(
+              len(item.get("servers", []))
+              for item in data
+              if isinstance(item, dict)
+          )
+          if not data or server_count == 0:
+              raise SystemExit("ERROR: Published catalogue has no playable servers")
+          print("SUCCESS:", len(data), "titles and", server_count, "server entries")
           PY
