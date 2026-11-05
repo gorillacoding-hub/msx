@@ -1,21 +1,13 @@
 (function () {
     "use strict";
 
-    
-    // =========================================
-    // MEDIA STATION X - CIMA4U PLAYER
-    // Compatible with older Samsung Tizen browsers
-    // =========================================
-
     var serversBox = document.getElementById("servers");
     var videoFrame = document.getElementById("videoFrame");
     var message = document.getElementById("message");
     var backButton = document.getElementById("back");
     var titleElement = document.getElementById("title");
-
-    // -----------------------------------------
-    // Read URL parameters (ES5 compatible)
-    // -----------------------------------------
+    var servers = [];
+    var currentServer = 0;
 
     function getParameter(name) {
         var query = window.location.search.substring(1);
@@ -27,7 +19,6 @@
 
         for (i = 0; i < parts.length; i++) {
             pair = parts[i].split("=");
-
             key = pair[0] || "";
             value = pair.slice(1).join("=") || "";
 
@@ -35,7 +26,7 @@
                 key = decodeURIComponent(key.replace(/\+/g, " "));
                 value = decodeURIComponent(value.replace(/\+/g, " "));
             } catch (error) {
-                // Keep the original value if decoding fails.
+                /* Keep the original parameter if decoding fails. */
             }
 
             if (key === name) {
@@ -46,61 +37,37 @@
         return "";
     }
 
-    // -----------------------------------------
-    // Get title
-    // -----------------------------------------
-
-    var title = getParameter("title");
-
-    if (!title) {
-        title = "MEDIA STATION X";
+    function isHttpUrl(value) {
+        return /^https?:\/\//i.test(String(value || ""));
     }
 
-    titleElement.textContent = title;
-
-    // -----------------------------------------
-    // Read server URLs
-    // -----------------------------------------
-
-    var servers = [];
-    var index = 1;
-
-    while (index <= 10) {
-        var serverUrl = getParameter("server" + index);
-
-        if (serverUrl) {
-            servers.push({
-                name: "SERVER " + index,
-                url: serverUrl
-            });
-        }
-
-        index++;
+    function setMessage(value) {
+        message.innerHTML = "";
+        message.appendChild(document.createTextNode(String(value || "")));
+        message.style.display = "block";
     }
 
-    // -----------------------------------------
-    // Select and load a server
-    // -----------------------------------------
+    function hideMessage() {
+        message.style.display = "none";
+    }
 
-    function selectServer(server, button) {
+    function selectServer(index) {
         var buttons = serversBox.getElementsByTagName("button");
         var i;
 
-        for (i = 0; i < buttons.length; i++) {
-            buttons[i].className = "server";
+        if (index < 0 || index >= servers.length) {
+            return;
         }
 
-        button.className = "server active";
+        currentServer = index;
 
-        message.style.display = "none";
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].className = i === index ? "server-button active" : "server-button";
+        }
 
-        // Load the selected video host directly.
-        videoFrame.src = server.url;
+        hideMessage();
+        videoFrame.src = servers[index].url;
     }
-
-    // -----------------------------------------
-    // Create server buttons
-    // -----------------------------------------
 
     function buildServers() {
         var i;
@@ -108,73 +75,77 @@
 
         serversBox.innerHTML = "";
 
-        if (!servers || servers.length === 0) {
-            message.style.display = "block";
-            message.textContent =
-                "No playable servers were found for this title.";
+        for (i = 1; i <= 10; i++) {
+            var url = getParameter("server" + i);
+            if (url && isHttpUrl(url)) {
+                servers.push({
+                    name: getParameter("serverName" + i) || "SERVER " + i,
+                    url: url
+                });
+            }
+        }
 
+        if (!servers.length) {
+            setMessage("No playable servers were found for this title. Go back and choose another title.");
             return;
         }
 
-        message.style.display = "none";
-
         for (i = 0; i < servers.length; i++) {
             button = document.createElement("button");
-
-            button.className = "server";
-            button.textContent = servers[i].name;
+            button.type = "button";
+            button.className = "server-button";
             button.tabIndex = 0;
+            button.appendChild(document.createTextNode(servers[i].name));
 
-            (function (server, currentButton) {
+            (function (serverIndex, currentButton) {
                 currentButton.onclick = function () {
-                    selectServer(server, currentButton);
+                    selectServer(serverIndex);
                 };
-            })(servers[i], button);
+            })(i, button);
 
             serversBox.appendChild(button);
         }
 
-        // Automatically load the first server.
-        selectServer(
-            servers[0],
-            serversBox.getElementsByTagName("button")[0]
-        );
+        selectServer(0);
     }
 
-    // -----------------------------------------
-    // Back button
-    // -----------------------------------------
-
-    backButton.onclick = function () {
+    function goBack() {
         videoFrame.src = "about:blank";
-
         if (window.history.length > 1) {
             window.history.back();
         } else {
             window.location.href = "index.html";
         }
-    };
+    }
 
-    // -----------------------------------------
-    // Samsung TV remote BACK key support
-    // -----------------------------------------
+    backButton.onclick = goBack;
 
     document.addEventListener("keydown", function (event) {
         event = event || window.event;
-
         var key = event.keyCode || event.which;
+        var buttons = serversBox.getElementsByTagName("button");
 
-        // Backspace / Samsung remote back key
-        if (key === 8 || key === 461) {
-            event.preventDefault();
-            backButton.onclick();
+        if (key === 8 || key === 27 || key === 461 || key === 10009) {
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
+            goBack();
+            return;
         }
-    });
 
-    // -----------------------------------------
-    // Initialize player
-    // -----------------------------------------
+        if ((key === 37 || key === 39) && buttons.length) {
+            var next = currentServer + (key === 37 ? -1 : 1);
+            if (next >= 0 && next < buttons.length) {
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+                buttons[next].focus();
+            }
+        }
+    }, false);
 
+    var title = getParameter("title");
+    titleElement.innerHTML = "";
+    titleElement.appendChild(document.createTextNode(title || "CIMA4U PLAYER"));
     buildServers();
-
-})();
+}());
