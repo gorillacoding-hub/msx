@@ -22,7 +22,7 @@ OUTPUT = Path(__file__).resolve().parent / "catalogue.json"
 MAX_CATEGORIES = 80
 MAX_PAGES = 15
 MAX_DETAILS = 500
-MAX_SERVERS = 12
+MAX_SERVERS = 8
 DELAY = 0.20
 TIMEOUT = 25
 
@@ -178,6 +178,7 @@ def detect_type(title, category=""):
         "anime",
         "انمي",
         "أنمي",
+        "انمى",
         "naruto",
         "one piece",
         "bleach",
@@ -367,6 +368,7 @@ def add_title(
         "type": detect_type(title, category),
         "category": clean(category),
         "poster": "",
+        "watch_url": url.rstrip("/") + "/watch/",
         "servers": [],
     })
 
@@ -491,55 +493,76 @@ def collect_listing(
 # Extract actual video servers from Cima4U episode HTML
 # --------------------------------------------------
 
-def extract_server_urls(html, parser=None):
+def find_watch_url(parser, item_url):
+    """Return the actual Cima4U watch route for a title/episode page."""
+    for link in parser.links:
+        label = clean(link.get("title", "")).lower()
+        candidate = normalize_url(link.get("url", ""), item_url)
 
+        if not candidate:
+            continue
+
+        path = urlparse(candidate).path.lower()
+
+        if (
+            path.rstrip("/").endswith("/watch")
+            or "مشاهدة الآن" in label
+            or "مشاهدة الان" in label
+            or "watch now" in label
+        ):
+            local = local_url(candidate)
+            if local:
+                return local.rstrip("/") + "/"
+
+    # Cima4U uses the same /watch/ suffix where the visible link is absent.
+    return item_url.rstrip("/") + "/watch/"
+
+
+def extract_server_urls(html, parser=None, base_url=BASE):
+    """Extract external player embeds from a Cima4U /watch/ page."""
     found = []
     seen = set()
 
     def add(value):
-
-        value = normalize_url(value, BASE)
-
+        value = normalize_url(value, base_url)
         if not value:
             return
 
         parsed = urlparse(value)
         host = (parsed.hostname or "").lower()
 
-        if host in (
-            "cimafu.live",
-            "www.cimafu.live",
-        ):
+        # Internal Cima4U pages are not video servers.
+        if host in ("cimafu.live", "www.cimafu.live"):
             return
-
         if not host or "." not in host:
             return
 
-        # Exclude images, scripts, styles and other assets.
         path = parsed.path.lower()
-
         if path.endswith((
-            ".jpg", ".jpeg", ".png", ".gif",
-            ".webp", ".svg", ".css", ".js",
+            ".jpg", ".jpeg", ".png", ".gif", ".webp",
+            ".svg", ".css", ".js", ".woff", ".woff2", ".ttf",
         )):
             return
 
-        # Avoid collecting the same URL more than once.
         normalized = value.rstrip("/")
-
-        if normalized in seen:
-            return
-
-        seen.add(normalized)
-        found.append(value)
+        if normalized not in seen:
+            seen.add(normalized)
+            found.append(value)
 
     if parser is not None:
+        # Prioritize the site's explicit iframe anchors. On the live /watch/
+        # page these are the actual playback choices; separate download links
+        # are labelled "سيرفر 1", "سيرفر 2", etc. and must be ignored.
+        for link in parser.links:
+            label = clean(link.get("title", "")).lower()
+            if "iframe" in label:
+                add(link.get("url", ""))
 
+        # Keep iframe/data attributes as a fallback for theme variations,
+        # after the explicit playback links have already been added.
         for value in parser.servers:
             add(value)
 
-    # Important: server_list / data-server markup
-    # found in the real Cima4U episode source.
     patterns = (
 
         r'data-server\s*=\s*["\']([^"\']+)',
@@ -565,15 +588,8 @@ def extract_server_urls(html, parser=None):
     )
 
     for pattern in patterns:
-
         try:
-
-            matches = re.findall(
-                pattern,
-                html,
-                re.I
-            )
-
+            matches = re.findall(pattern, html, re.I)
         except re.error:
             continue
 
@@ -584,9 +600,9 @@ def extract_server_urls(html, parser=None):
 
 
 def extract_details(item):
-
+    # First fetch the title/episode page for its poster, description,
+    # and Watch Now destination.
     html = fetch(item["url"])
-
     if not html:
         print("No details downloaded:", item["url"])
         return
@@ -598,7 +614,6 @@ def extract_details(item):
         or parser.meta.get("description")
         or parser.meta.get("twitter:description")
     )
-
     if description:
         item["description"] = clean(description)[:1500]
 
@@ -607,44 +622,44 @@ def extract_details(item):
         or parser.meta.get("twitter:image")
         or parser.meta.get("twitter:image:src")
     )
-
     if poster:
-
-        poster_url = normalize_url(
-            poster,
-            item["url"]
-        )
-
+        poster_url = normalize_url(poster, item["url"])
         if poster_url:
             item["poster"] = poster_url
-
     else:
-
         for image in parser.images:
-
-            image_url = normalize_url(
-                image,
-                item["url"]
-            )
-
+            image_url = normalize_url(image, item["url"])
             if image_url:
                 item["poster"] = image_url
                 break
 
-    # Extract episode / movie streaming servers.
-    item["servers"] = extract_server_urls(
-        html,
-        parser
-    )
+    # Critical fix: streaming servers live on the separate /watch/ route,
+    # not on the regular title/episode page.
+    watch_url = find_watch_url(parser, item["url"])
+    item["watch_url"] = watch_url
+    watch_html = fetch(watch_url)
+
+    if watch_html:
+        watch_parser = parse_page(watch_html)
+        item["servers"] = extract_server_urls(
+            watch_html,
+            watch_parser,
+            watch_url,
+        )
+    else:
+        item["servers"] = []
 
     page_title = parser.meta.get("og:title", "")
-
     if page_title:
-
         item["type"] = detect_type(
             clean(page_title),
             item.get("category", ""),
         )
+
+    print(
+        "  Watch page:", watch_url,
+        "| servers:", len(item.get("servers", [])),
+    )
 
 
 # --------------------------------------------------
@@ -879,6 +894,10 @@ def main():
         item.setdefault("type", "movie")
         item.setdefault("category", "")
         item.setdefault("poster", "")
+        item.setdefault(
+            "watch_url",
+            item.get("url", "").rstrip("/") + "/watch/"
+        )
         item.setdefault("servers", [])
 
     save_catalogue(items)
