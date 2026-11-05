@@ -1,268 +1,125 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cima4U - Media Station X</title><style>
-* {
-    box-sizing: border-box;
+<meta name="description" content="Cima4U catalogue and full-screen player for Media Station X">
+<title>Cima4U - Media Station X</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: #100b1b; color: #fff; font-family: Arial, Helvetica, sans-serif; }
+body { min-height: 100vh; }
+header { padding: 18px 22px; background: #211331; border-bottom: 2px solid #7544a5; }
+header h1 { margin: 0; color: #d5b5ff; font-size: 28px; letter-spacing: 1px; }
+#navigation { display: flex; flex-wrap: wrap; padding: 12px 15px 2px; background: #181020; }
+button { padding: 11px 18px; margin: 0 9px 10px 0; background: #352044; color: #fff; border: 2px solid #634582; border-radius: 5px; font-size: 17px; font-weight: bold; cursor: pointer; }
+button:focus, input:focus, .card:focus { outline: 3px solid #e0c4ff; outline-offset: 2px; background-color: #604080; }
+button.active { background: #7040a0; border-color: #cba5ff; }
+#searchBox { display: block; width: calc(100% - 30px); margin: 12px 15px; padding: 13px 14px; background: #21182c; color: #fff; border: 2px solid #634582; border-radius: 5px; font-size: 18px; }
+#status { padding: 4px 16px 12px; color: #d2b5f2; font-size: 17px; }
+#catalogue { display: flex; flex-wrap: wrap; align-items: stretch; padding: 0 15px 5px; }
+.card { width: 172px; margin: 0 13px 16px 0; overflow: hidden; background: #21182c; border: 2px solid #39264f; border-radius: 6px; cursor: pointer; }
+.card img { display: block; width: 100%; height: 226px; object-fit: cover; background: #2b2038; }
+.poster-placeholder { display: flex; align-items: center; justify-content: center; height: 226px; background: #2b2038; color: #b99ad5; font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+.cardTitle { padding: 10px; min-height: 58px; font-size: 16px; line-height: 1.35; }
+#pager { display: flex; flex-wrap: wrap; align-items: center; padding: 5px 15px 20px; }
+#pageInfo { padding: 0 12px 10px 0; color: #bda6d8; font-size: 16px; }
+#details { display: none; padding: 18px 20px 30px; background: #181020; min-height: 55vh; }
+#details h2 { color: #d5b5ff; font-size: 25px; line-height: 1.3; }
+#detailsPoster { display: block; max-width: 230px; max-height: 330px; width: auto; height: auto; margin: 10px 0 15px; border-radius: 5px; }
+#detailsDescription { max-width: 900px; font-size: 17px; line-height: 1.55; white-space: pre-wrap; margin-bottom: 15px; color: #e4dce9; }
+#watchNow { display: block; width: 100%; max-width: 480px; padding: 17px 20px; margin: 18px 0; background: #7b3fbd; border: 3px solid #cba5ff; color: white; font-size: 23px; font-weight: bold; }
+#watchNow:focus { background: #a66be8; outline: 4px solid white; }
+#serverInfo { max-width: 800px; color: #c7b2df; font-size: 16px; line-height: 1.4; }
+.hidden { display: none !important; }
+@media (max-width: 700px) {
+  header { padding: 14px; }
+  header h1 { font-size: 23px; }
+  #navigation { padding: 10px 10px 0; }
+  button { padding: 10px 13px; margin-right: 7px; font-size: 15px; }
+  #catalogue { padding: 0 10px; }
+  .card { width: calc(50% - 8px); margin: 0 8px 12px 0; }
+  .card:nth-child(2n) { margin-right: 0; }
+  .card img, .poster-placeholder { height: 210px; }
+  #details { padding: 12px; }
 }
-
-body {
-    margin: 0;
-    background: #100b1b;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-}
-
-header {
-    background: #211331;
-    padding: 20px;
-    border-bottom: 2px solid #7544a5;
-}
-
-header h1 {
-    margin: 0;
-    color: #cba5ff;
-    font-size: 28px;
-}
-
-#navigation {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 15px;
-    background: #181020;
-}
-
-button {
-    background: #352044;
-    color: #ffffff;
-    border: 2px solid #634582;
-    padding: 12px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:focus {
-    outline: 3px solid #d7b4ff;
-    background: #68439a;
-    color: #ffffff;
-}
-
-#searchBox {
-    display: block;
-    width: calc(100% - 30px);
-    margin: 15px;
-    padding: 14px;
-    background: #21182c;
-    color: white;
-    border: 2px solid #634582;
-    border-radius: 5px;
-    font-size: 18px;
-}
-
-#status {
-    padding: 15px;
-    color: #cba5ff;
-    font-size: 18px;
-}
-
-#catalogue {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    padding: 15px;
-}
-
-.card {
-    background: #21182c;
-    border: 2px solid #39264f;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.card:focus {
-    outline: 3px solid #d7b4ff;
-    background: #352044;
-}
-
-.card img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    background: #2b2038;
-}
-
-.cardTitle {
-    padding: 10px;
-    font-size: 17px;
-    line-height: 1.3;
-}
-
-#details {
-    display: none;
-    padding: 20px;
-    background: #181020;
-}
-
-#details h2 {
-    color: #cba5ff;
-    font-size: 25px;
-}
-
-#detailsPoster {
-    max-width: 240px;
-    width: 100%;
-    height: auto;
-    display: block;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-#detailsDescription {
-    font-size: 18px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    margin-bottom: 20px;
-}
-
-#watchNow {
-    display: block;
-    width: 100%;
-    max-width: 500px;
-    margin: 20px 0;
-    padding: 18px;
-    background: #7b3fbd;
-    border: 3px solid #cba5ff;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-#watchNow:focus {
-    background: #a66be8;
-    outline: 4px solid white;
-}
-
-#backToCatalogue {
-    margin-bottom: 20px;
-}
-
-#serverInfo {
-    color: #bda6d8;
-    font-size: 16px;
-    margin-top: 10px;
-}
-
-.hidden {
-    display: none !important;
-}
-</style></head><body><header>
-    <h1>Cima4U</h1>
-</header><div id="navigation">
-    <button id="homeButton">HOME</button>
-    <button id="moviesButton">MOVIES</button>
-    <button id="seriesButton">SERIES</button>
-    <button id="animeButton">ANIME</button>
-</div><input
-type="text"
-id="searchBox"
-placeholder="Search movies, series and anime..."
-
-«»
-
-<div id="status">Loading catalogue...</div><div id="catalogue"></div><div id="details">
-    <button id="backToCatalogue">BACK TO TITLES</button><h2 id="detailsTitle"></h2>
-
-<img id="detailsPoster" src="" alt="">
-
-<div id="detailsDescription"></div>
-
-<button id="watchNow">▶ WATCH NOW</button>
-
-<div id="serverInfo"></div>
-
-</div><script>
+</style>
+</head>
+<body>
+<header><h1>Cima4U</h1></header>
+<div id="navigation">
+  <button id="homeButton" class="active">HOME</button>
+  <button id="moviesButton">MOVIES</button>
+  <button id="seriesButton">SERIES</button>
+  <button id="animeButton">ANIME</button>
+</div>
+<input type="text" id="searchBox" placeholder="Search movies, series and anime..." autocomplete="off">
+<div id="status" role="status">Loading catalogue...</div>
+<div id="catalogue"></div>
+<div id="pager">
+  <button id="previousPage">PREVIOUS</button>
+  <span id="pageInfo">Page 1</span>
+  <button id="nextPage">NEXT</button>
+</div>
+<section id="details">
+  <button id="backToCatalogue">BACK TO TITLES</button>
+  <h2 id="detailsTitle"></h2>
+  <img id="detailsPoster" src="" alt="">
+  <div id="detailsDescription"></div>
+  <button id="watchNow">&#9654; WATCH NOW</button>
+  <div id="serverInfo"></div>
+</section>
+<script>
 (function () {
     "use strict";
 
+    var PAGE_SIZE = 24;
+    var MAX_SERVERS = 10;
     var catalogue = [];
     var filteredItems = [];
     var currentCategory = "all";
+    var currentPage = 0;
     var selectedItem = null;
 
     var catalogueElement = document.getElementById("catalogue");
     var detailsElement = document.getElementById("details");
     var statusElement = document.getElementById("status");
     var searchBox = document.getElementById("searchBox");
+    var pagerElement = document.getElementById("pager");
+    var previousButton = document.getElementById("previousPage");
+    var nextButton = document.getElementById("nextPage");
+    var pageInfo = document.getElementById("pageInfo");
 
-    function requestCatalogue() {
-        var xhr = new XMLHttpRequest();
-
-        xhr.open("GET", "catalogue.json?v=" + new Date().getTime(), true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) {
-                return;
-            }
-
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    var data = JSON.parse(xhr.responseText);
-
-                    if (data && data.items && data.items.length) {
-                        catalogue = data.items;
-                    } else if (data && data.length) {
-                        catalogue = data;
-                    } else {
-                        catalogue = [];
-                    }
-
-                    statusElement.innerHTML = catalogue.length ?
-                        catalogue.length + " titles available" :
-                        "The catalogue is empty.";
-
-                    filterCatalogue();
-                } catch (e) {
-                    statusElement.innerHTML = "Could not read catalogue.json.";
-                }
-            } else {
-                statusElement.innerHTML = "Could not load catalogue.";
-            }
-        };
-
-        xhr.onerror = function () {
-            statusElement.innerHTML = "Network error loading catalogue.";
-        };
-
-        xhr.send(null);
+    function setText(element, value) {
+        element.innerHTML = "";
+        element.appendChild(document.createTextNode(String(value || "")));
     }
 
     function getItemType(item) {
         var type = String(item.type || "").toLowerCase();
+        var value;
 
         if (type === "movie" || type === "series" || type === "anime") {
             return type;
         }
 
-        var text = (
+        value = (
             String(item.category || "") + " " +
             String(item.title || "")
         ).toLowerCase();
 
-        if (
-            text.indexOf("anime") !== -1 ||
-            text.indexOf("أنمي") !== -1
-        ) {
+        if (value.indexOf("anime") !== -1 || value.indexOf("انمي") !== -1 || value.indexOf("أنمي") !== -1 || value.indexOf("انمى") !== -1) {
             return "anime";
         }
 
         if (
-            text.indexOf("series") !== -1 ||
-            text.indexOf("مسلسل") !== -1 ||
-            text.indexOf("الموسم") !== -1
+            value.indexOf("series") !== -1 ||
+            value.indexOf("مسلسل") !== -1 ||
+            value.indexOf("مسلسلات") !== -1 ||
+            value.indexOf("الحلقة") !== -1 ||
+            value.indexOf("الموسم") !== -1 ||
+            value.indexOf("episode") !== -1 ||
+            value.indexOf("season") !== -1
         ) {
             return "series";
         }
@@ -270,236 +127,417 @@ placeholder="Search movies, series and anime..."
         return "movie";
     }
 
-    function filterCatalogue() {
-        var query = searchBox.value.toLowerCase();
-        filteredItems = [];
-
-        var i;
-        var item;
-        var text;
-
-        for (i = 0; i < catalogue.length; i++) {
-            item = catalogue[i];
-
-            if (
-                currentCategory !== "all" &&
-                getItemType(item) !== currentCategory
-            ) {
-                continue;
-            }
-
-            text = (
-                String(item.title || "") + " " +
-                String(item.category || "") + " " +
-                String(item.description || "")
-            ).toLowerCase();
-
-            if (query && text.indexOf(query) === -1) {
-                continue;
-            }
-
-            filteredItems.push(item);
-        }
-
-        renderCatalogue();
-    }
-
-    function renderCatalogue() {
-        catalogueElement.innerHTML = "";
-
-        detailsElement.style.display = "none";
-        catalogueElement.style.display = "grid";
-        statusElement.style.display = "block";
-
-        if (!filteredItems.length) {
-            statusElement.innerHTML = "No titles found.";
-            return;
-        }
-
-        statusElement.innerHTML =
-            filteredItems.length + " titles found";
-
-        var i;
-        var item;
-        var card;
-        var poster;
-        var title;
-
-        for (i = 0; i < filteredItems.length; i++) {
-            item = filteredItems[i];
-
-            card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-
-            poster = document.createElement("img");
-            poster.alt = item.title || "";
-            poster.src = item.poster || "";
-            poster.onerror = function () {
-                this.style.display = "none";
-            };
-
-            title = document.createElement("div");
-            title.className = "cardTitle";
-            title.innerHTML = escapeHTML(item.title || "Untitled");
-
-            card.appendChild(poster);
-            card.appendChild(title);
-
-            card.onclick = (function (selected) {
-                return function () {
-                    openDetails(selected);
-                };
-            })(item);
-
-            card.onkeydown = (function (selected) {
-                return function (event) {
-                    event = event || window.event;
-
-                    if (
-                        event.keyCode === 13 ||
-                        event.keyCode === 32
-                    ) {
-                        openDetails(selected);
-                    }
-                };
-            })(item);
-
-            catalogueElement.appendChild(card);
-        }
-    }
-
-    function openDetails(item) {
-        selectedItem = item;
-
-        catalogueElement.style.display = "none";
-        statusElement.style.display = "none";
-        detailsElement.style.display = "block";
-
-        document.getElementById("detailsTitle").innerHTML =
-            escapeHTML(item.title || "Untitled");
-
-        document.getElementById("detailsDescription").innerHTML =
-            escapeHTML(item.description || "No description available.");
-
-        var poster = document.getElementById("detailsPoster");
-
-        if (item.poster) {
-            poster.src = item.poster;
-            poster.style.display = "block";
-        } else {
-            poster.style.display = "none";
-        }
-
-        var servers = getServers(item);
-
-        if (servers.length) {
-            document.getElementById("serverInfo").innerHTML =
-                servers.length + " video server(s) available.";
-        } else {
-            document.getElementById("serverInfo").innerHTML =
-                "Video servers are not available yet for this title.";
-        }
-
-        document.getElementById("watchNow").focus();
-    }
-
     function getServers(item) {
         var result = [];
-        var source = item.servers || [];
+        var source = item && item.servers ? item.servers : [];
         var i;
         var server;
+        var url;
+        var name;
 
-        for (i = 0; i < source.length && result.length < 10; i++) {
+        if (Object.prototype.toString.call(source) !== "[object Array]") {
+            return result;
+        }
+
+        for (i = 0; i < source.length && result.length < MAX_SERVERS; i++) {
             server = source[i];
+            url = "";
+            name = "SERVER " + (result.length + 1);
 
             if (typeof server === "string") {
-                if (server) {
-                    result.push(server);
-                }
+                url = server;
             } else if (server && server.url) {
-                result.push(server.url);
+                url = server.url;
+                if (server.name) {
+                    name = server.name;
+                }
+            }
+
+            if (url && /^https?:\/\//i.test(url)) {
+                result.push({ name: name, url: url });
             }
         }
 
         return result;
     }
 
-    function openPlayer(title, servers) {
-        if (!servers || !servers.length) {
-            document.getElementById("serverInfo").innerHTML =
-                "Sorry, no video servers are available for this title yet.";
+    function filterCatalogue() {
+        var query = String(searchBox.value || "").toLowerCase();
+        var i;
+        var item;
+        var searchText;
+
+        filteredItems = [];
+
+        for (i = 0; i < catalogue.length; i++) {
+            item = catalogue[i];
+
+            if (currentCategory !== "all" && getItemType(item) !== currentCategory) {
+                continue;
+            }
+
+            searchText = (
+                String(item.title || "") + " " +
+                String(item.category || "") + " " +
+                String(item.description || "")
+            ).toLowerCase();
+
+            if (query && searchText.indexOf(query) === -1) {
+                continue;
+            }
+
+            filteredItems.push(item);
+        }
+
+        currentPage = 0;
+        renderCatalogue();
+    }
+
+    function createCard(item, itemIndex) {
+        var card = document.createElement("div");
+        var title = document.createElement("div");
+        var poster;
+        var placeholder;
+
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("data-item-index", String(itemIndex));
+
+        if (item.poster) {
+            poster = document.createElement("img");
+            poster.alt = String(item.title || "");
+            poster.src = item.poster;
+            poster.onerror = function () {
+                if (this.parentNode) {
+                    placeholder = document.createElement("div");
+                    placeholder.className = "poster-placeholder";
+                    placeholder.appendChild(document.createTextNode("CIMA4U"));
+                    this.parentNode.replaceChild(placeholder, this);
+                }
+            };
+            card.appendChild(poster);
+        } else {
+            placeholder = document.createElement("div");
+            placeholder.className = "poster-placeholder";
+            placeholder.appendChild(document.createTextNode("CIMA4U"));
+            card.appendChild(placeholder);
+        }
+
+        title.className = "cardTitle";
+        title.appendChild(document.createTextNode(String(item.title || "Untitled")));
+        card.appendChild(title);
+
+        card.onclick = function () {
+            openDetails(item);
+        };
+
+        card.onkeydown = function (event) {
+            event = event || window.event;
+            var key = event.keyCode || event.which;
+            if (key === 13 || key === 32) {
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+                openDetails(item);
+            }
+        };
+
+        return card;
+    }
+
+    function updatePager(pageCount) {
+        if (pageCount < 1) {
+            pageCount = 1;
+        }
+
+        previousButton.disabled = currentPage <= 0;
+        nextButton.disabled = currentPage >= pageCount - 1;
+        setText(pageInfo, "PAGE " + (currentPage + 1) + " / " + pageCount);
+        pagerElement.style.display = filteredItems.length ? "flex" : "none";
+    }
+
+    function renderCatalogue() {
+        var start;
+        var end;
+        var i;
+        var pageCount;
+
+        catalogueElement.innerHTML = "";
+        detailsElement.style.display = "none";
+        catalogueElement.style.display = "flex";
+        statusElement.style.display = "block";
+
+        if (!filteredItems.length) {
+            setText(statusElement, "No titles found.");
+            pagerElement.style.display = "none";
             return;
         }
 
-        var url = "player.html?title=" + encodeURIComponent(title || "");
+        pageCount = Math.ceil(filteredItems.length / PAGE_SIZE);
+        if (currentPage >= pageCount) {
+            currentPage = pageCount - 1;
+        }
 
+        start = currentPage * PAGE_SIZE;
+        end = Math.min(start + PAGE_SIZE, filteredItems.length);
+
+        for (i = start; i < end; i++) {
+            catalogueElement.appendChild(createCard(filteredItems[i], i));
+        }
+
+        setText(statusElement, filteredItems.length + " titles found");
+        updatePager(pageCount);
+    }
+
+    function openDetails(item) {
+        var servers;
+        var poster = document.getElementById("detailsPoster");
+
+        selectedItem = item;
+        catalogueElement.style.display = "none";
+        pagerElement.style.display = "none";
+        statusElement.style.display = "none";
+        detailsElement.style.display = "block";
+
+        setText(document.getElementById("detailsTitle"), item.title || "Untitled");
+        setText(document.getElementById("detailsDescription"), item.description || "No description available.");
+
+        if (item.poster) {
+            poster.src = item.poster;
+            poster.style.display = "block";
+            poster.onerror = function () { this.style.display = "none"; };
+        } else {
+            poster.style.display = "none";
+        }
+
+        servers = getServers(item);
+        if (servers.length) {
+            setText(document.getElementById("serverInfo"), servers.length + " playable server(s) available.");
+        } else {
+            setText(document.getElementById("serverInfo"), "No playable servers have been indexed for this title yet.");
+        }
+
+        document.getElementById("watchNow").focus();
+    }
+
+    function openPlayer() {
+        var servers;
+        var url;
         var i;
 
-        for (i = 0; i < servers.length && i < 10; i++) {
-            url += "&server" + (i + 1) + "=" +
-                encodeURIComponent(servers[i]);
+        if (!selectedItem) {
+            return;
+        }
+
+        servers = getServers(selectedItem);
+        if (!servers.length) {
+            setText(
+                document.getElementById("serverInfo"),
+                "No playable servers are available in the catalogue for this title. Try another title or refresh the catalogue later."
+            );
+            return;
+        }
+
+        url = "player.html?title=" + encodeURIComponent(selectedItem.title || "Cima4U");
+
+        for (i = 0; i < servers.length; i++) {
+            url += "&server" + (i + 1) + "=" + encodeURIComponent(servers[i].url);
+            url += "&serverName" + (i + 1) + "=" + encodeURIComponent(servers[i].name);
         }
 
         window.location.href = url;
     }
 
-    function escapeHTML(value) {
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+    function setCategory(category, buttonId) {
+        var ids = ["homeButton", "moviesButton", "seriesButton", "animeButton"];
+        var i;
+        currentCategory = category;
+        selectedItem = null;
+        for (i = 0; i < ids.length; i++) {
+            document.getElementById(ids[i]).className = ids[i] === buttonId ? "active" : "";
+        }
+        filterCatalogue();
     }
 
-    document.getElementById("watchNow").onclick = function () {
-        if (!selectedItem) {
-            return;
+    function moveFocus(key) {
+        var nodes = document.querySelectorAll("button, input, .card");
+        var active = document.activeElement;
+        var activeRect;
+        var best = null;
+        var bestScore = 999999;
+        var i;
+        var node;
+        var rect;
+        var dx;
+        var dy;
+        var score;
+        var currentIndex = -1;
+        var visible = [];
+
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
+            if (!node.disabled && node.offsetWidth > 0 && node.offsetHeight > 0) {
+                visible.push(node);
+            }
         }
 
-        openPlayer(
-            selectedItem.title,
-            getServers(selectedItem)
-        );
-    };
+        if (!visible.length) {
+            return false;
+        }
 
-    document.getElementById("backToCatalogue").onclick = function () {
-        selectedItem = null;
+        if (active === searchBox && (key === 37 || key === 39)) {
+            return false;
+        }
 
-        detailsElement.style.display = "none";
-        catalogueElement.style.display = "grid";
-        statusElement.style.display = "block";
+        activeRect = active && active.getBoundingClientRect ? active.getBoundingClientRect() : null;
 
-        filterCatalogue();
-    };
+        for (i = 0; i < visible.length; i++) {
+            if (visible[i] === active) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        if (!activeRect || currentIndex === -1) {
+            visible[0].focus();
+            return true;
+        }
+
+        for (i = 0; i < visible.length; i++) {
+            node = visible[i];
+            if (node === active) {
+                continue;
+            }
+            rect = node.getBoundingClientRect();
+            dx = (rect.left + rect.right) / 2 - (activeRect.left + activeRect.right) / 2;
+            dy = (rect.top + rect.bottom) / 2 - (activeRect.top + activeRect.bottom) / 2;
+
+            if (key === 37 && dx >= -2) { continue; }
+            if (key === 39 && dx <= 2) { continue; }
+            if (key === 38 && dy >= -2) { continue; }
+            if (key === 40 && dy <= 2) { continue; }
+
+            if (key === 37 || key === 39) {
+                score = Math.abs(dx) + Math.abs(dy) * 2.5;
+            } else {
+                score = Math.abs(dy) + Math.abs(dx) * 2.5;
+            }
+
+            if (score < bestScore) {
+                bestScore = score;
+                best = node;
+            }
+        }
+
+        if (best) {
+            best.focus();
+            return true;
+        }
+
+        return false;
+    }
+
+    function requestCatalogue() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "catalogue.json?v=" + new Date().getTime(), true);
+
+        xhr.onreadystatechange = function () {
+            var data;
+            if (xhr.readyState !== 4) {
+                return;
+            }
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    data = JSON.parse(xhr.responseText);
+                    if (data && data.items && Object.prototype.toString.call(data.items) === "[object Array]") {
+                        catalogue = data.items;
+                    } else if (Object.prototype.toString.call(data) === "[object Array]") {
+                        catalogue = data;
+                    } else {
+                        catalogue = [];
+                    }
+
+                    if (!catalogue.length) {
+                        setText(statusElement, "The catalogue is empty.");
+                        return;
+                    }
+
+                    filterCatalogue();
+                } catch (error) {
+                    setText(statusElement, "Could not read catalogue.json. The catalogue data is invalid.");
+                }
+            } else {
+                setText(statusElement, "Could not load catalogue.json (HTTP " + xhr.status + ").");
+            }
+        };
+
+        xhr.onerror = function () {
+            setText(statusElement, "Network error while loading the catalogue.");
+        };
+
+        xhr.send(null);
+    }
 
     document.getElementById("homeButton").onclick = function () {
-        currentCategory = "all";
         searchBox.value = "";
-        filterCatalogue();
+        setCategory("all", "homeButton");
     };
-
     document.getElementById("moviesButton").onclick = function () {
-        currentCategory = "movie";
-        filterCatalogue();
+        setCategory("movie", "moviesButton");
     };
-
     document.getElementById("seriesButton").onclick = function () {
-        currentCategory = "series";
-        filterCatalogue();
+        setCategory("series", "seriesButton");
     };
-
     document.getElementById("animeButton").onclick = function () {
-        currentCategory = "anime";
-        filterCatalogue();
+        setCategory("anime", "animeButton");
     };
-
+    document.getElementById("watchNow").onclick = openPlayer;
+    document.getElementById("backToCatalogue").onclick = function () {
+        selectedItem = null;
+        detailsElement.style.display = "none";
+        renderCatalogue();
+    };
+    previousButton.onclick = function () {
+        if (currentPage > 0) {
+            currentPage--;
+            renderCatalogue();
+            previousButton.focus();
+        }
+    };
+    nextButton.onclick = function () {
+        if ((currentPage + 1) * PAGE_SIZE < filteredItems.length) {
+            currentPage++;
+            renderCatalogue();
+            nextButton.focus();
+        }
+    };
     searchBox.onkeyup = function () {
         filterCatalogue();
     };
 
+    document.addEventListener("keydown", function (event) {
+        event = event || window.event;
+        var key = event.keyCode || event.which;
+
+        if (key === 8 || key === 27 || key === 461 || key === 10009) {
+            if (detailsElement.style.display === "block") {
+                if (event.preventDefault) { event.preventDefault(); }
+                document.getElementById("backToCatalogue").click();
+            }
+            return;
+        }
+
+        if (key === 37 || key === 38 || key === 39 || key === 40) {
+            if (moveFocus(key) && event.preventDefault) {
+                event.preventDefault();
+            }
+        }
+    }, false);
+
     requestCatalogue();
-})();
-</script></body>
-    </html>
+}());
+</script>
+</body>
+</html>
