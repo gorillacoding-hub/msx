@@ -1,4 +1,3 @@
-
 (function () {
     var container;
     var status;
